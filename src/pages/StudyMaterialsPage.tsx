@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ const StudyMaterialsPage = () => {
   
   const materials = [
     {
+      id: "1",
       title: "Grade 10 Science Notes",
       category: "high-school",
       subject: "physics",
@@ -52,6 +54,7 @@ const StudyMaterialsPage = () => {
       type: "pdf"
     },
     {
+      id: "2",
       title: "Engineering Mathematics",
       category: "engineering",
       subject: "mathematics",
@@ -61,6 +64,7 @@ const StudyMaterialsPage = () => {
       type: "pdf"
     },
     {
+      id: "3",
       title: "Computer Science Fundamentals",
       category: "bachelors",
       subject: "computer-science",
@@ -70,6 +74,7 @@ const StudyMaterialsPage = () => {
       type: "pdf"
     },
     {
+      id: "4",
       title: "Biology Diagrams and Illustrations",
       category: "high-school",
       subject: "biology",
@@ -79,6 +84,7 @@ const StudyMaterialsPage = () => {
       type: "pdf"
     },
     {
+      id: "5",
       title: "NEET Preparation Guide",
       category: "competitive",
       subject: "biology",
@@ -88,6 +94,7 @@ const StudyMaterialsPage = () => {
       type: "pdf"
     },
     {
+      id: "6",
       title: "World History: Modern Era",
       category: "bachelors",
       subject: "history",
@@ -205,7 +212,7 @@ const StudyMaterialsPage = () => {
                       <Card key={index} className="glass-card hover:shadow-lg transition-all duration-300 overflow-hidden">
                         <CardContent className="p-6">
                           <h3 className="text-lg font-semibold mb-2 hover:text-edu-purple transition-colors">
-                            <a href="#">{material.title}</a>
+                            <Link to={`/content/${material.id}`}>{material.title}</Link>
                           </h3>
                           <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                             {material.description}
@@ -220,9 +227,16 @@ const StudyMaterialsPage = () => {
                               {material.pages} pages
                             </span>
                           </div>
-                          <Button className="w-full">
-                            Download {material.type.toUpperCase()}
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button asChild className="w-full">
+                              <Link to={`/content/${material.id}`}>
+                                View Details
+                              </Link>
+                            </Button>
+                            <Button variant="outline">
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
@@ -237,7 +251,7 @@ const StudyMaterialsPage = () => {
                           <div className="flex flex-col md:flex-row justify-between">
                             <div className="md:w-2/3">
                               <h3 className="text-lg font-semibold mb-2 hover:text-edu-purple transition-colors">
-                                <a href="#">{material.title}</a>
+                                <Link to={`/content/${material.id}`}>{material.title}</Link>
                               </h3>
                               <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
                                 {material.description}
@@ -253,9 +267,14 @@ const StudyMaterialsPage = () => {
                                 </span>
                               </div>
                             </div>
-                            <div className="md:w-1/3 flex items-center justify-end mt-4 md:mt-0">
-                              <Button>
-                                Download {material.type.toUpperCase()}
+                            <div className="md:w-1/3 flex items-center justify-end mt-4 md:mt-0 gap-2">
+                              <Button asChild>
+                                <Link to={`/content/${material.id}`}>
+                                  View Details
+                                </Link>
+                              </Button>
+                              <Button variant="outline">
+                                <Download className="h-4 w-4" />
                               </Button>
                             </div>
                           </div>
