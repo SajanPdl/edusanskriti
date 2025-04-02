@@ -1,106 +1,104 @@
 
-import { Calendar, User, ArrowRight } from 'lucide-react';
-
-// Sample blog posts data
-const blogPosts = [
-  {
-    id: 1,
-    title: "10 Effective Study Techniques for Better Retention",
-    excerpt: "Discover scientifically-proven study methods that can help you remember information longer and perform better in exams.",
-    author: "Dr. Ananya Sharma",
-    date: "May 15, 2023",
-    category: "Study Tips",
-    image: "/placeholder.svg",
-  },
-  {
-    id: 2,
-    title: "How to Prepare for Competitive Exams While in School",
-    excerpt: "Balance your school studies with competitive exam preparation using these time-management and productivity strategies.",
-    author: "Rajat Verma",
-    date: "Jun 2, 2023",
-    category: "Exam Preparation",
-    image: "/placeholder.svg",
-  },
-  {
-    id: 3,
-    title: "The Ultimate Guide to Choosing Your College Major",
-    excerpt: "Confused about which subject to pursue in college? This comprehensive guide will help you make an informed decision.",
-    author: "Priya Malhotra",
-    date: "Apr 12, 2023",
-    category: "Career Guidance",
-    image: "/placeholder.svg",
-  },
-  {
-    id: 4,
-    title: "Digital Tools Every Student Should Use in 2023",
-    excerpt: "Enhance your productivity and learning with these cutting-edge digital tools and applications designed for students.",
-    author: "Vikram Aditya",
-    date: "Jul 8, 2023",
-    category: "Technology",
-    image: "/placeholder.svg",
-  },
-];
+import { Link } from 'react-router-dom';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar, User, ChevronRight, Eye } from 'lucide-react';
+import CounterAnimation from './CounterAnimation';
+import Advertisement from './Advertisement';
 
 const BlogSection = () => {
+  const blogs = [
+    {
+      title: "10 Effective Study Techniques for Exam Success",
+      excerpt: "Learn proven strategies to maximize your study sessions and retain information more effectively.",
+      author: "Dr. Ananya Sharma",
+      date: "June 15, 2023",
+      views: 5280,
+      image: "https://source.unsplash.com/random/600x400/?study"
+    },
+    {
+      title: "How to Prepare for Engineering Entrance Exams",
+      excerpt: "A comprehensive guide to tackling the most challenging engineering entrance examinations.",
+      author: "Prof. Rajesh Kumar",
+      date: "May 22, 2023",
+      views: 3750,
+      image: "https://source.unsplash.com/random/600x400/?engineering"
+    },
+    {
+      title: "Digital Learning Tools Every Student Should Know",
+      excerpt: "Discover the latest digital tools and applications that can revolutionize your learning experience.",
+      author: "Priya Mishra",
+      date: "July 3, 2023",
+      views: 4120,
+      image: "https://source.unsplash.com/random/600x400/?digital"
+    }
+  ];
+
   return (
-    <section id="blog" className="py-20 bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Educational Articles & Tips</h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Stay updated with the latest educational insights, study techniques, and career guidance through our informative articles.
+    <section id="blog" className="py-20 px-4 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Educational Blog</h2>
+          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Explore articles, tips and guidance to enhance your academic journey and career prospects
           </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {blogPosts.map(post => (
-            <article key={post.id} className="glass-card overflow-hidden group hover:shadow-neon transition-all duration-300">
-              <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={post.image} 
-                  alt={post.title} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute top-4 right-4">
-                  <span className="bg-edu-purple/90 text-white text-xs font-medium px-2.5 py-1 rounded">
-                    {post.category}
-                  </span>
-                </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          {blogs.map((blog, index) => (
+            <Card key={index} className="glass-card hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700">
+              <div className="h-48 overflow-hidden">
+                <img src={blog.image} alt={blog.title} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" />
               </div>
-              
-              <div className="p-6">
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4 gap-4">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    <span>{post.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <User className="h-4 w-4" />
-                    <span>{post.author}</span>
-                  </div>
-                </div>
-                
-                <h3 className="text-xl font-semibold mb-3 group-hover:text-edu-purple transition-colors duration-300">
-                  {post.title}
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-2 hover:text-edu-purple transition-colors">
+                  <Link to="/blog">{blog.title}</Link>
                 </h3>
-                
-                <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                  {post.excerpt}
+                <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                  {blog.excerpt}
                 </p>
-                
-                <a href="#" className="inline-flex items-center text-edu-purple hover:text-edu-indigo font-medium transition-colors duration-300">
-                  Read More
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </a>
-              </div>
-            </article>
+                <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-1" />
+                    <span>{blog.date}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <User className="h-4 w-4 mr-1" />
+                    <span>{blog.author}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Eye className="h-4 w-4 mr-1" />
+                    <CounterAnimation 
+                      end={blog.views} 
+                      duration={1500}
+                      className="text-sm"
+                    /> <span className="ml-1">views</span>
+                  </div>
+                  <Button variant="ghost" size="sm" className="text-edu-purple hover:text-edu-indigo" asChild>
+                    <Link to="/blog">View</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
         
-        <div className="text-center mt-12">
-          <button className="btn-primary">
-            View All Articles
-          </button>
+        <Advertisement 
+          network="google" 
+          size="large-rectangle" 
+          id="blog-ad"
+          className="mb-12"
+        />
+        
+        <div className="text-center">
+          <Button asChild className="bg-edu-purple hover:bg-edu-indigo text-white px-6 py-3 rounded-full inline-flex items-center group">
+            <Link to="/blog">
+              Read More Articles
+              <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </Button>
         </div>
       </div>
     </section>
