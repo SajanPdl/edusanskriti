@@ -1,5 +1,4 @@
-
-import { Apple, PenTool, BookOpen, Smartphone, Download } from 'lucide-react';
+import { Apple, PenTool, BookOpen, Smartphone, Download, Search, User, FileText } from 'lucide-react';
 
 const AppPromotion = () => {
   return (
