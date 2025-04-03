@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
@@ -18,7 +17,8 @@ import {
   Brain,
   Calculator,
   Lightbulb,
-  Link as LinkIcon
+  Link as LinkIcon,
+  User as UserIcon // Import the User icon from lucide-react
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -372,7 +372,7 @@ const ContentDetailView = () => {
               <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
                 {material.author && (
                   <div className="flex items-center gap-1">
-                    <User className="h-4 w-4" />
+                    <UserIcon className="h-4 w-4" />
                     <span>{material.author}</span>
                   </div>
                 )}
@@ -566,7 +566,7 @@ const ContentDetailView = () => {
               <h2 className="text-xl font-bold mb-4">Preview Material</h2>
               <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                 <PdfViewer 
-                  url={material.pdfUrl}
+                  fileUrl={material.pdfUrl}
                   height={600}
                 />
               </div>

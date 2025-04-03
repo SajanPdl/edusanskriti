@@ -12,9 +12,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 interface PdfViewerProps {
   fileUrl: string;
   title?: string;
+  height?: number;
 }
 
-const PdfViewer = ({ fileUrl, title }: PdfViewerProps) => {
+const PdfViewer = ({ fileUrl, title, height = 600 }: PdfViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(1.0);
@@ -41,7 +42,7 @@ const PdfViewer = ({ fileUrl, title }: PdfViewerProps) => {
   const zoomOut = () => setScale(prev => Math.max(prev - 0.1, 0.5));
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-900 rounded-lg shadow-lg overflow-hidden">
+    <div className="flex flex-col h-full bg-white dark:bg-gray-900 rounded-lg shadow-lg overflow-hidden" style={{ height: height ? `${height}px` : 'auto' }}>
       {/* PDF Viewer Header */}
       <div className="flex justify-between items-center bg-gray-100 dark:bg-gray-800 p-4 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 truncate">
