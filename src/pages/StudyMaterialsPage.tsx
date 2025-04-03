@@ -1,365 +1,255 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { Search, BookOpen, FileText, Download, Filter, ChevronRight } from 'lucide-react';
-import useSearchSuggestions from '@/hooks/use-search-suggestions';
-import Advertisement from '@/components/Advertisement';
+import SearchBar from "@/components/SearchBar";
+import { Book, Filter, Download, Eye } from 'lucide-react';
+
+// Mock data for study materials
+const initialMaterials = [
+  {
+    id: 1,
+    title: "Grade 10 Science Notes",
+    subject: "Science",
+    grade: "Grade 10",
+    type: "Notes",
+    downloadCount: 1245,
+    fileSize: "2.4 MB",
+    fileType: "PDF",
+    thumbnailUrl: "/placeholder.svg"
+  },
+  {
+    id: 2,
+    title: "Engineering Mathematics",
+    subject: "Mathematics",
+    grade: "Engineering",
+    type: "Textbook",
+    downloadCount: 3210,
+    fileSize: "5.8 MB",
+    fileType: "PDF",
+    thumbnailUrl: "/placeholder.svg"
+  },
+  {
+    id: 3,
+    title: "Grade 11 History Notes",
+    subject: "History",
+    grade: "Grade 11",
+    type: "Notes",
+    downloadCount: 854,
+    fileSize: "1.7 MB",
+    fileType: "PDF",
+    thumbnailUrl: "/placeholder.svg"
+  },
+  {
+    id: 4,
+    title: "Computer Science Fundamentals",
+    subject: "Computer Science",
+    grade: "Bachelor's",
+    type: "Textbook",
+    downloadCount: 4567,
+    fileSize: "8.2 MB",
+    fileType: "PDF",
+    thumbnailUrl: "/placeholder.svg"
+  },
+  {
+    id: 5,
+    title: "Grade 9 Mathematics Formulas",
+    subject: "Mathematics",
+    grade: "Grade 9",
+    type: "Formula Sheet",
+    downloadCount: 2198,
+    fileSize: "1.1 MB",
+    fileType: "PDF",
+    thumbnailUrl: "/placeholder.svg"
+  },
+  {
+    id: 6,
+    title: "Bachelor's Physics Laboratory Manual",
+    subject: "Physics",
+    grade: "Bachelor's",
+    type: "Lab Manual",
+    downloadCount: 1782,
+    fileSize: "3.9 MB",
+    fileType: "PDF",
+    thumbnailUrl: "/placeholder.svg"
+  }
+];
+
+const categories = [
+  "Grade 7", "Grade 8", "Grade 9", "Grade 10", 
+  "Grade 11", "Grade 12", "Bachelor's", "Engineering"
+];
+
+const subjects = [
+  "Mathematics", "Science", "Physics", "Chemistry", "Biology", 
+  "History", "Geography", "Computer Science", "Literature"
+];
+
+const resourceTypes = [
+  "Notes", "Textbook", "Formula Sheet", "Lab Manual", "Practice Sheets", "Summary"
+];
 
 const StudyMaterialsPage = () => {
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedSubject, setSelectedSubject] = useState("all");
-  const { 
-    query, 
-    setQuery, 
-    suggestions, 
-    showSuggestions, 
-    setShowSuggestions 
-  } = useSearchSuggestions({ category: 'materials' });
-  
-  const categories = [
-    { id: "all", name: "All Categories" },
-    { id: "high-school", name: "High School" },
-    { id: "bachelors", name: "Bachelor's Degree" },
-    { id: "engineering", name: "Engineering" },
-    { id: "medical", name: "Medical" },
-    { id: "competitive", name: "Competitive Exams" }
-  ];
-  
-  const subjects = [
-    { id: "all", name: "All Subjects" },
-    { id: "mathematics", name: "Mathematics" },
-    { id: "physics", name: "Physics" },
-    { id: "chemistry", name: "Chemistry" },
-    { id: "biology", name: "Biology" },
-    { id: "computer-science", name: "Computer Science" },
-    { id: "history", name: "History" },
-    { id: "geography", name: "Geography" }
-  ];
-  
-  const materials = [
-    {
-      id: "1",
-      title: "Grade 10 Science Notes",
-      category: "high-school",
-      subject: "physics",
-      description: "Comprehensive science notes covering physics, chemistry and biology for grade 10 students.",
-      downloads: 1250,
-      pages: 45,
-      type: "pdf"
-    },
-    {
-      id: "2",
-      title: "Engineering Mathematics",
-      category: "engineering",
-      subject: "mathematics",
-      description: "Essential mathematical concepts and formulas for engineering students.",
-      downloads: 2840,
-      pages: 120,
-      type: "pdf"
-    },
-    {
-      id: "3",
-      title: "Computer Science Fundamentals",
-      category: "bachelors",
-      subject: "computer-science",
-      description: "Introduction to programming, algorithms, and data structures for undergraduate students.",
-      downloads: 1890,
-      pages: 85,
-      type: "pdf"
-    },
-    {
-      id: "4",
-      title: "Biology Diagrams and Illustrations",
-      category: "high-school",
-      subject: "biology",
-      description: "Collection of detailed biological diagrams and illustrations for high school students.",
-      downloads: 1560,
-      pages: 30,
-      type: "pdf"
-    },
-    {
-      id: "5",
-      title: "NEET Preparation Guide",
-      category: "competitive",
-      subject: "biology",
-      description: "Comprehensive guide for NEET aspirants with important concepts and practice questions.",
-      downloads: 3450,
-      pages: 150,
-      type: "pdf"
-    },
-    {
-      id: "6",
-      title: "World History: Modern Era",
-      category: "bachelors",
-      subject: "history",
-      description: "Detailed notes on world history covering major events from the 18th century onwards.",
-      downloads: 920,
-      pages: 110,
-      type: "pdf"
-    }
-  ];
-  
-  const filteredMaterials = materials.filter(material => {
-    const matchesCategory = selectedCategory === "all" || material.category === selectedCategory;
-    const matchesSubject = selectedSubject === "all" || material.subject === selectedSubject;
-    const matchesSearch = query === "" || material.title.toLowerCase().includes(query.toLowerCase());
-    
-    return matchesCategory && matchesSubject && matchesSearch;
-  });
-  
+  const [materials, setMaterials] = useState(initialMaterials);
+  const [selectedGrade, setSelectedGrade] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedType, setSelectedType] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filterMaterials = () => {
+    return initialMaterials.filter(material => {
+      const matchesGrade = selectedGrade ? material.grade === selectedGrade : true;
+      const matchesSubject = selectedSubject ? material.subject === selectedSubject : true;
+      const matchesType = selectedType ? material.type === selectedType : true;
+      const matchesSearch = searchQuery 
+        ? material.title.toLowerCase().includes(searchQuery.toLowerCase()) 
+        : true;
+
+      return matchesGrade && matchesSubject && matchesType && matchesSearch;
+    });
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setMaterials(filterMaterials());
+  };
+
+  const resetFilters = () => {
+    setSelectedGrade('');
+    setSelectedSubject('');
+    setSelectedType('');
+    setSearchQuery('');
+    setMaterials(initialMaterials);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <main className="flex-1 pt-24 pb-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 gradient-text">Study Materials</h1>
-            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Access thousands of carefully crafted notes, guides and study materials to excel in your academic journey
-            </p>
-          </div>
+      <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-edu-lightgray to-white dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold text-center mb-6 gradient-text">Study Materials</h1>
+          <p className="text-center text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto">
+            Access comprehensive study materials, notes, and resources to enhance your learning experience.
+            Filter by grade, subject, or material type to find exactly what you need.
+          </p>
           
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="md:w-2/3">
-              <div className="mb-8 relative">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <Input
-                    type="text"
-                    className="w-full pl-10 py-6 rounded-lg"
-                    placeholder="Search for study materials..."
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    onFocus={() => setShowSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                  />
-                </div>
-                
-                {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
-                    <ul className="py-2">
-                      {suggestions.map((suggestion, index) => (
-                        <li 
-                          key={index}
-                          className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                          onClick={() => {
-                            setQuery(suggestion);
-                            setShowSuggestions(false);
-                          }}
-                        >
-                          {suggestion}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+          <form onSubmit={handleSearch} className="mb-10">
+            <SearchBar 
+              placeholder="Search study materials..." 
+              className="max-w-3xl mx-auto"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </form>
+          
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-10">
+            <div className="flex items-center mb-4">
+              <Filter className="w-5 h-5 text-edu-purple mr-2" />
+              <h2 className="text-xl font-bold">Filter Materials</h2>
+              <button 
+                onClick={resetFilters}
+                className="ml-auto text-sm text-edu-purple hover:text-edu-indigo"
+              >
+                Reset Filters
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Grade/Level</label>
+                <select 
+                  value={selectedGrade}
+                  onChange={(e) => setSelectedGrade(e.target.value)}
+                  className="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-edu-purple focus:ring focus:ring-edu-purple/20 bg-white dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">All Grades</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
               </div>
               
-              <div className="flex flex-col md:flex-row gap-4 mb-8">
-                <div className="w-full md:w-1/2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    <Filter className="w-4 h-4 inline mr-1" /> Category
-                  </label>
-                  <select
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2"
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                  >
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>{category.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="w-full md:w-1/2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    <Filter className="w-4 h-4 inline mr-1" /> Subject
-                  </label>
-                  <select
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2"
-                    value={selectedSubject}
-                    onChange={(e) => setSelectedSubject(e.target.value)}
-                  >
-                    {subjects.map((subject) => (
-                      <option key={subject.id} value={subject.id}>{subject.name}</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Subject</label>
+                <select 
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  className="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-edu-purple focus:ring focus:ring-edu-purple/20 bg-white dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">All Subjects</option>
+                  {subjects.map(subject => (
+                    <option key={subject} value={subject}>{subject}</option>
+                  ))}
+                </select>
               </div>
               
-              <Tabs defaultValue="grid" className="mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">
-                    {filteredMaterials.length} Results
-                  </h2>
-                  <TabsList>
-                    <TabsTrigger value="grid">Grid</TabsTrigger>
-                    <TabsTrigger value="list">List</TabsTrigger>
-                  </TabsList>
-                </div>
-                
-                <TabsContent value="grid">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {filteredMaterials.map((material, index) => (
-                      <Card key={index} className="glass-card hover:shadow-lg transition-all duration-300 overflow-hidden">
-                        <CardContent className="p-6">
-                          <h3 className="text-lg font-semibold mb-2 hover:text-edu-purple transition-colors">
-                            <Link to={`/content/${material.id}`}>{material.title}</Link>
-                          </h3>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                            {material.description}
-                          </p>
-                          <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                            <span>
-                              <Download className="h-4 w-4 inline mr-1" />
-                              {material.downloads} downloads
-                            </span>
-                            <span>
-                              <FileText className="h-4 w-4 inline mr-1" />
-                              {material.pages} pages
-                            </span>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button asChild className="w-full">
-                              <Link to={`/content/${material.id}`}>
-                                View Details
-                              </Link>
-                            </Button>
-                            <Button variant="outline">
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="list">
-                  <div className="space-y-4">
-                    {filteredMaterials.map((material, index) => (
-                      <Card key={index} className="glass-card hover:shadow-lg transition-all duration-300 overflow-hidden">
-                        <CardContent className="p-6">
-                          <div className="flex flex-col md:flex-row justify-between">
-                            <div className="md:w-2/3">
-                              <h3 className="text-lg font-semibold mb-2 hover:text-edu-purple transition-colors">
-                                <Link to={`/content/${material.id}`}>{material.title}</Link>
-                              </h3>
-                              <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                                {material.description}
-                              </p>
-                              <div className="flex gap-4 text-sm text-gray-500">
-                                <span>
-                                  <Download className="h-4 w-4 inline mr-1" />
-                                  {material.downloads} downloads
-                                </span>
-                                <span>
-                                  <FileText className="h-4 w-4 inline mr-1" />
-                                  {material.pages} pages
-                                </span>
-                              </div>
-                            </div>
-                            <div className="md:w-1/3 flex items-center justify-end mt-4 md:mt-0 gap-2">
-                              <Button asChild>
-                                <Link to={`/content/${material.id}`}>
-                                  View Details
-                                </Link>
-                              </Button>
-                              <Button variant="outline">
-                                <Download className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-              </Tabs>
-              
-              <Advertisement 
-                network="google" 
-                size="banner" 
-                id="study-materials-inline-ad"
-                className="my-8"
-              />
-              
-              <div className="flex justify-center mt-8">
-                <Button className="bg-edu-purple hover:bg-edu-indigo text-white px-6 py-2 rounded-full inline-flex items-center">
-                  Load More
-                  <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Resource Type</label>
+                <select 
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-edu-purple focus:ring focus:ring-edu-purple/20 bg-white dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">All Types</option>
+                  {resourceTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
               </div>
             </div>
             
-            <div className="md:w-1/3">
-              <div className="sticky top-24">
-                <Card className="glass-card mb-6">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Popular Materials</h3>
-                    <ul className="space-y-4">
-                      <li>
-                        <a href="#" className="flex items-start hover:text-edu-purple">
-                          <BookOpen className="h-5 w-5 mt-0.5 mr-2 text-edu-purple" />
-                          <div>
-                            <h4 className="font-medium">Complete Physics Formula Sheet</h4>
-                            <p className="text-sm text-gray-500">4,580 downloads</p>
-                          </div>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#" className="flex items-start hover:text-edu-purple">
-                          <BookOpen className="h-5 w-5 mt-0.5 mr-2 text-edu-purple" />
-                          <div>
-                            <h4 className="font-medium">Organic Chemistry Reaction Guide</h4>
-                            <p className="text-sm text-gray-500">3,920 downloads</p>
-                          </div>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#" className="flex items-start hover:text-edu-purple">
-                          <BookOpen className="h-5 w-5 mt-0.5 mr-2 text-edu-purple" />
-                          <div>
-                            <h4 className="font-medium">Mathematics Problem Solving Techniques</h4>
-                            <p className="text-sm text-gray-500">3,150 downloads</p>
-                          </div>
-                        </a>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-                
-                <Advertisement 
-                  network="adsterra" 
-                  size="sidebar" 
-                  id="study-materials-sidebar-ad"
-                  className="mb-6"
-                />
-                
-                <Card className="glass-card">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold mb-4">Need Help?</h3>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                      Can't find what you're looking for? Contact us and we'll help you locate the study material you need.
-                    </p>
-                    <Button variant="outline" className="w-full" asChild>
-                      <a href="/contact">Contact Support</a>
-                    </Button>
-                  </CardContent>
-                </Card>
+            <button 
+              onClick={handleSearch}
+              className="mt-6 btn-primary w-full sm:w-auto"
+              type="button"
+            >
+              Apply Filters
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {materials.map(material => (
+              <div key={material.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-purple/10 text-edu-purple mb-3">
+                        {material.grade}
+                      </span>
+                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-blue/10 text-edu-blue mb-3 ml-2">
+                        {material.subject}
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">{material.fileSize} {material.fileType}</span>
+                  </div>
+                  
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{material.title}</h3>
+                  
+                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <Book className="h-4 w-4 mr-1" />
+                    <span>{material.type}</span>
+                    <span className="mx-2">•</span>
+                    <Download className="h-4 w-4 mr-1" />
+                    <span>{material.downloadCount.toLocaleString()}</span>
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    <button className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </button>
+                    <button className="flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
-      </main>
+      </div>
       
       <Footer />
     </div>
