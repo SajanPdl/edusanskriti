@@ -104,7 +104,31 @@ export default {
 					'0%': { backgroundPosition: '0% 50%' },
 					'50%': { backgroundPosition: '100% 50%' },
 					'100%': { backgroundPosition: '0% 50%' },
-				}
+				},
+				'slide-in-right': {
+					'0%': { transform: 'translateX(100%)' },
+					'100%': { transform: 'translateX(0)' }
+				},
+				'slide-in-left': {
+					'0%': { transform: 'translateX(-100%)' },
+					'100%': { transform: 'translateX(0)' }
+				},
+				'zoom-in': {
+					'0%': { transform: 'scale(0.95)', opacity: '0' },
+					'100%': { transform: 'scale(1)', opacity: '1' }
+				},
+				'bounce-subtle': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' }
+				},
+				'shimmer': {
+					'0%': { backgroundPosition: '-1000px 0' },
+					'100%': { backgroundPosition: '1000px 0' }
+				},
+				'fade-in': {
+					'0%': { opacity: '0' },
+					'100%': { opacity: '1' }
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -113,6 +137,12 @@ export default {
 				'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
 				'spin-slow': 'spin-slow 30s linear infinite',
 				'bg-shift': 'bg-shift 15s ease infinite',
+				'slide-in-right': 'slide-in-right 0.5s ease-out',
+				'slide-in-left': 'slide-in-left 0.5s ease-out',
+				'zoom-in': 'zoom-in 0.5s ease-out',
+				'bounce-subtle': 'bounce-subtle 2s ease-in-out infinite',
+				'shimmer': 'shimmer 3s infinite linear',
+				'fade-in': 'fade-in 0.5s ease-out',
 			},
 			backgroundImage: {
 				'hero-pattern': "linear-gradient(135deg, rgba(106, 38, 169, 0.8) 0%, rgba(45, 70, 185, 0.8) 100%)",
@@ -125,9 +155,17 @@ export default {
 				'neon': '0 0 10px rgba(106, 38, 169, 0.5), 0 0 20px rgba(106, 38, 169, 0.3)',
 				'neon-blue': '0 0 10px rgba(45, 70, 185, 0.5), 0 0 20px rgba(45, 70, 185, 0.3)',
 				'neon-orange': '0 0 10px rgba(249, 115, 22, 0.5), 0 0 20px rgba(249, 115, 22, 0.3)',
+				'hover-elevation': '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
 			},
 			backdropBlur: {
 				'xs': '2px',
+			},
+			typography: {
+				DEFAULT: {
+					css: {
+						maxWidth: '100%',
+					},
+				},
 			},
 		}
 	},

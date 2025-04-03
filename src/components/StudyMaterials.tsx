@@ -1,6 +1,10 @@
 
 import { useState } from 'react';
-import { BookOpen, FileText, BookText, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { BookOpen, FileText, BookText, Search, Download, Star, Eye } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
 // Sample data for study materials
 const studyMaterialsData = [
@@ -10,7 +14,10 @@ const studyMaterialsData = [
     category: "High School",
     subject: "Mathematics",
     downloads: 2458,
-    imageUrl: "/placeholder.svg",
+    rating: 4.8,
+    views: 5620,
+    image: "/placeholder.svg",
+    description: "Comprehensive notes covering all essential topics for Grade 10 Mathematics."
   },
   {
     id: 2,
@@ -18,7 +25,10 @@ const studyMaterialsData = [
     category: "Bachelor's",
     subject: "Physics",
     downloads: 1879,
-    imageUrl: "/placeholder.svg",
+    rating: 4.6,
+    views: 3450,
+    image: "/placeholder.svg",
+    description: "Detailed notes on Classical Mechanics covering Newton's Laws, Conservation of Energy, and more."
   },
   {
     id: 3,
@@ -26,7 +36,10 @@ const studyMaterialsData = [
     category: "High School",
     subject: "Chemistry",
     downloads: 3120,
-    imageUrl: "/placeholder.svg",
+    rating: 4.9,
+    views: 7890,
+    image: "/placeholder.svg",
+    description: "A comprehensive handbook containing all essential chemistry formulas and equations."
   },
   {
     id: 4,
@@ -34,7 +47,10 @@ const studyMaterialsData = [
     category: "Engineering",
     subject: "Computer Science",
     downloads: 1547,
-    imageUrl: "/placeholder.svg",
+    rating: 4.5,
+    views: 2980,
+    image: "/placeholder.svg",
+    description: "In-depth coverage of essential algorithms and data structures for CS students."
   },
   {
     id: 5,
@@ -42,7 +58,10 @@ const studyMaterialsData = [
     category: "High School",
     subject: "English",
     downloads: 4205,
-    imageUrl: "/placeholder.svg",
+    rating: 4.7,
+    views: 8750,
+    image: "/placeholder.svg",
+    description: "Complete grammar guide with examples and practice exercises for students."
   },
   {
     id: 6,
@@ -50,7 +69,10 @@ const studyMaterialsData = [
     category: "Medical",
     subject: "Biology",
     downloads: 2873,
-    imageUrl: "/placeholder.svg",
+    rating: 4.8,
+    views: 5240,
+    image: "/placeholder.svg",
+    description: "Detailed diagrams and notes on human anatomical systems for medical students."
   },
   {
     id: 7,
@@ -58,7 +80,10 @@ const studyMaterialsData = [
     category: "Bachelor's",
     subject: "History",
     downloads: 1054,
-    imageUrl: "/placeholder.svg",
+    rating: 4.3,
+    views: 2130,
+    image: "/placeholder.svg",
+    description: "Comprehensive notes on modern world history from 1900 to present."
   },
   {
     id: 8,
@@ -66,7 +91,10 @@ const studyMaterialsData = [
     category: "Bachelor's",
     subject: "Economics",
     downloads: 1732,
-    imageUrl: "/placeholder.svg",
+    rating: 4.6,
+    views: 3650,
+    image: "/placeholder.svg",
+    description: "Fundamental economic principles explained with real-world case studies."
   },
 ];
 
@@ -78,11 +106,14 @@ const StudyMaterials = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeSubject, setActiveSubject] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
 
   const filteredMaterials = studyMaterialsData.filter(material => {
     const matchesCategory = activeCategory === "All" || material.category === activeCategory;
     const matchesSubject = activeSubject === "All" || material.subject === activeSubject;
-    const matchesSearch = material.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = material.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          material.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          material.description.toLowerCase().includes(searchQuery.toLowerCase());
     
     return matchesCategory && matchesSubject && matchesSearch;
   });
@@ -121,7 +152,7 @@ const StudyMaterials = () => {
                   placeholder="Search materials..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-all duration-300 hover:shadow-md"
                 />
               </div>
             </div>
@@ -130,7 +161,7 @@ const StudyMaterials = () => {
               <select
                 value={activeCategory}
                 onChange={(e) => setActiveCategory(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                className="px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-all duration-300 hover:shadow-md"
               >
                 {categories.map(category => (
                   <option key={category} value={category}>{category}</option>
@@ -140,7 +171,7 @@ const StudyMaterials = () => {
               <select
                 value={activeSubject}
                 onChange={(e) => setActiveSubject(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                className="px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-all duration-300 hover:shadow-md"
               >
                 {subjects.map(subject => (
                   <option key={subject} value={subject}>{subject}</option>
@@ -153,38 +184,73 @@ const StudyMaterials = () => {
         {/* Materials Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredMaterials.map(material => (
-            <div key={material.id} className="glass-card group hover:shadow-neon transition-shadow duration-300">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  {getIcon(material.subject)}
-                  <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm px-3 py-1 rounded-full">
-                    {material.category}
-                  </span>
-                </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-edu-purple transition-colors duration-300">
-                  {material.title}
-                </h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
-                  Subject: {material.subject}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {material.downloads.toLocaleString()} downloads
-                  </span>
-                  <button className="bg-edu-purple/10 hover:bg-edu-purple/20 text-edu-purple px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-300">
-                    Download
-                  </button>
+            <Link 
+              key={material.id} 
+              to={`/content/${material.id}`}
+              className="block"
+              onMouseEnter={() => setHoveredId(material.id)}
+              onMouseLeave={() => setHoveredId(null)}
+            >
+              <div className={`glass-card interactive-card card-hover h-full ${hoveredId === material.id ? 'shadow-neon' : ''}`}>
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    {getIcon(material.subject)}
+                    <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-edu-purple/10 hover:text-edu-purple transition-colors">
+                      {material.category}
+                    </Badge>
+                  </div>
+                  <h3 className={`text-xl font-semibold mb-2 group-hover:text-edu-purple transition-colors duration-300 ${hoveredId === material.id ? 'text-edu-purple' : ''}`}>
+                    {material.title}
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                    {material.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <Download className="h-4 w-4 mr-1" />
+                        <span>{material.downloads.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <Star className="h-4 w-4 mr-1 text-yellow-500" />
+                        <span>{material.rating}</span>
+                      </div>
+                    </div>
+                    <HoverCard>
+                      <HoverCardTrigger asChild>
+                        <Button variant="ghost" size="sm" className="p-0 h-8 w-8">
+                          <Eye className="h-4 w-4 text-edu-purple" />
+                        </Button>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="w-80">
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold">{material.title}</h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {material.description}
+                          </p>
+                          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                            <span>{material.subject}</span>
+                            <span>{material.views.toLocaleString()} views</span>
+                          </div>
+                          <Button size="sm" className="w-full mt-2">
+                            View Material
+                          </Button>
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
         {/* See More Button */}
         <div className="text-center mt-12">
-          <button className="btn-primary">
+          <Button className="btn-primary scale-on-hover">
             Explore All Materials
-          </button>
+          </Button>
         </div>
       </div>
     </section>
