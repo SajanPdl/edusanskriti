@@ -474,6 +474,30 @@ const ContentDetailView = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main content area */}
           <div className="lg:col-span-2 space-y-8">
+            {/* PDF Viewer */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+              <h2 className="text-xl font-bold mb-4">Preview Material</h2>
+              <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                <PdfViewer 
+                  fileUrl={material.pdfUrl}
+                  height={500}
+                />
+              </div>
+              <div className="mt-6 text-center">
+                <Button 
+                  onClick={handleDownload}
+                  className="gap-2 bg-gradient-to-r from-edu-purple to-edu-blue hover:from-edu-blue hover:to-edu-purple transition-all duration-300 transform hover:scale-105"
+                  size="lg"
+                >
+                  <Download className="h-5 w-5" />
+                  Download Full Material
+                </Button>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  Downloaded {material.downloads.toLocaleString()} times by students
+                </p>
+              </div>
+            </div>
+
             {/* Key points and formulas */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {material.keyPoints && (
@@ -560,30 +584,6 @@ const ContentDetailView = () => {
                 </div>
               </Collapsible>
             )}
-            
-            {/* PDF Viewer */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
-              <h2 className="text-xl font-bold mb-4">Preview Material</h2>
-              <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                <PdfViewer 
-                  fileUrl={material.pdfUrl}
-                  height={600}
-                />
-              </div>
-              <div className="mt-6 text-center">
-                <Button 
-                  onClick={handleDownload}
-                  className="gap-2 bg-gradient-to-r from-edu-purple to-edu-blue hover:from-edu-blue hover:to-edu-purple transition-all duration-300 transform hover:scale-105"
-                  size="lg"
-                >
-                  <Download className="h-5 w-5" />
-                  Download Full Material
-                </Button>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                  Downloaded {material.downloads.toLocaleString()} times by students
-                </p>
-              </div>
-            </div>
           </div>
           
           {/* Sidebar */}
