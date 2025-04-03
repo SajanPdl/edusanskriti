@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { 
   Search, 
@@ -25,6 +26,43 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  avatar: string;
+  role: 'student' | 'teacher' | 'contributor' | 'admin';
+  status: 'active' | 'suspended' | 'pending';
+  verified: boolean;
+  joinDate: string;
+  lastLogin: string;
+  downloads: number;
+  comments: number;
+  reports: number;
+}
 
 const usersMockData: User[] = [
   {
