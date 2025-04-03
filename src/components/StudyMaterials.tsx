@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, FileText, BookText, Search, Download, Star, Eye, ChevronDown, ChevronUp } from 'lucide-react';
@@ -5,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 
 // Sample data for study materials
 const studyMaterialsData = [
@@ -216,14 +218,13 @@ const StudyMaterials = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredMaterials.map((material) => (
             <div key={material.id} className="relative">
-              <Link 
-                to={`/content/${material.id}`}
-                className="block"
+              <Card 
+                className={`interactive-card h-full overflow-hidden transition-all ${hoveredId === material.id ? 'shadow-neon' : 'shadow-md'}`}
                 onMouseEnter={() => setHoveredId(material.id)}
                 onMouseLeave={() => setHoveredId(null)}
               >
-                <div className={`glass-card interactive-card card-hover h-full ${hoveredId === material.id ? 'shadow-neon' : ''}`}>
-                  <div className="p-6">
+                <Link to={`/content/${material.id}`} className="block h-full">
+                  <CardHeader className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       {getIcon(material.subject)}
                       <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-edu-purple/10 hover:text-edu-purple transition-colors">
@@ -236,8 +237,10 @@ const StudyMaterials = () => {
                     <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2">
                       {material.description}
                     </p>
-                    
-                    <div className="flex items-center justify-between">
+                  </CardHeader>
+                  
+                  <CardFooter className="px-6 pb-6 pt-0">
+                    <div className="flex items-center justify-between w-full">
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                           <Download className="h-4 w-4 mr-1" />
@@ -264,16 +267,16 @@ const StudyMaterials = () => {
                               <span>{material.subject}</span>
                               <span>{material.views.toLocaleString()} views</span>
                             </div>
-                            <Button size="sm" className="w-full mt-2">
-                              View Material
+                            <Button size="sm" className="w-full mt-2" asChild>
+                              <Link to={`/content/${material.id}`}>View Material</Link>
                             </Button>
                           </div>
                         </HoverCardContent>
                       </HoverCard>
                     </div>
-                  </div>
-                </div>
-              </Link>
+                  </CardFooter>
+                </Link>
+              </Card>
               
               {/* Collapsible Key Points & Formulas (only for Math and Physics) */}
               {(material.subject === "Mathematics" || material.subject === "Physics") && (
@@ -320,11 +323,11 @@ const StudyMaterials = () => {
                     </div>
                     
                     <div className="flex justify-center">
-                      <Link to={`/content/${material.id}`}>
-                        <Button size="sm" className="bg-gradient-to-r from-edu-purple to-edu-blue text-white hover:from-edu-blue hover:to-edu-purple transition-all duration-300 transform hover:scale-105">
+                      <Button size="sm" className="bg-gradient-to-r from-edu-purple to-edu-blue text-white hover:from-edu-blue hover:to-edu-purple transition-all duration-300 transform hover:scale-105" asChild>
+                        <Link to={`/content/${material.id}`}>
                           View Full Material
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
@@ -335,8 +338,8 @@ const StudyMaterials = () => {
 
         {/* See More Button */}
         <div className="text-center mt-12">
-          <Button className="btn-primary scale-on-hover">
-            Explore All Materials
+          <Button className="btn-primary scale-on-hover" asChild>
+            <Link to="/study-materials">Explore All Materials</Link>
           </Button>
         </div>
       </div>

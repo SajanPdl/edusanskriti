@@ -1,5 +1,9 @@
 
 import { Calendar, User, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 // Sample blog posts data
 const blogPosts = [
@@ -54,53 +58,62 @@ const BlogSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {blogPosts.map(post => (
-            <article key={post.id} className="glass-card overflow-hidden group hover:shadow-neon transition-all duration-300">
-              <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={post.image} 
-                  alt={post.title} 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute top-4 right-4">
-                  <span className="bg-edu-purple/90 text-white text-xs font-medium px-2.5 py-1 rounded">
-                    {post.category}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4 gap-4">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    <span>{post.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <User className="h-4 w-4" />
-                    <span>{post.author}</span>
+            <Card 
+              key={post.id} 
+              className="overflow-hidden group hover:shadow-neon transition-all duration-300 h-full"
+            >
+              <Link to={`/blog/${post.id}`} className="block h-full">
+                <div className="relative h-48 overflow-hidden">
+                  <img 
+                    src={post.image} 
+                    alt={post.title} 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-edu-purple/90 text-white">
+                      {post.category}
+                    </Badge>
                   </div>
                 </div>
                 
-                <h3 className="text-xl font-semibold mb-3 group-hover:text-edu-purple transition-colors duration-300">
-                  {post.title}
-                </h3>
+                <CardHeader className="p-6 pb-2">
+                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4 gap-4">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{post.date}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <User className="h-4 w-4" />
+                      <span>{post.author}</span>
+                    </div>
+                  </div>
+                  
+                  <CardTitle className="text-xl group-hover:text-edu-purple transition-colors duration-300">
+                    {post.title}
+                  </CardTitle>
+                </CardHeader>
                 
-                <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                  {post.excerpt}
-                </p>
+                <CardContent className="p-6 pt-0">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                    {post.excerpt}
+                  </p>
+                </CardContent>
                 
-                <a href="#" className="inline-flex items-center text-edu-purple hover:text-edu-indigo font-medium transition-colors duration-300">
-                  Read More
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </a>
-              </div>
-            </article>
+                <CardFooter className="p-6 pt-0 mt-auto">
+                  <div className="inline-flex items-center text-edu-purple hover:text-edu-indigo font-medium transition-colors duration-300">
+                    Read More
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </div>
+                </CardFooter>
+              </Link>
+            </Card>
           ))}
         </div>
         
         <div className="text-center mt-12">
-          <button className="btn-primary">
-            View All Articles
-          </button>
+          <Button className="btn-primary" asChild>
+            <Link to="/blog">View All Articles</Link>
+          </Button>
         </div>
       </div>
     </section>

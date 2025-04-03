@@ -13,6 +13,7 @@ import LoginPage from "./pages/LoginPage";
 import AdminPanel from "./pages/AdminPanel";
 import ContentViewPage from "./pages/ContentViewPage";
 import NotFound from "./pages/NotFound";
+import ChatBot from "./components/ChatBot";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/study-materials" element={<StudyMaterialsPage />} />
           <Route path="/past-papers" element={<PastPapersPage />} />
           <Route path="/blog" element={<BlogPage />} />
+          <Route path="/blog/:id" element={<ContentViewPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin" element={<AdminPanel />} />
@@ -34,6 +36,8 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        {/* Chat bot available on all pages */}
+        <ChatBot />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
