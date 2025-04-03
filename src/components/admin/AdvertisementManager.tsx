@@ -48,8 +48,31 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 
-// Mock ad data
-const adsMockData = [
+interface Ad {
+  id: number;
+  name: string;
+  advertiser: string;
+  platform: 'direct' | 'adsense' | 'adsterra';
+  status: 'active' | 'paused' | 'expired';
+  type: 'image' | 'adsense' | 'adsterra';
+  location: 'sidebar' | 'header' | 'content' | 'footer';
+  size: string;
+  impressions: number;
+  clicks: number;
+  ctr: number;
+  revenue: number;
+  startDate: string;
+  endDate: string;
+  imageUrl?: string;
+  targetUrl?: string;
+  adsenseCode?: string;
+  adsenseSlot?: string;
+  adsterraCode?: string;
+  advertiserImage?: string;
+}
+
+// Fix the mock data to properly type the values according to the Ad interface
+const adsMockData: Ad[] = [
   {
     id: 1,
     name: 'Premium Sidebar Banner',
@@ -123,29 +146,6 @@ const adsMockData = [
     advertiserImage: 'https://placehold.co/50x50/f5f5f5/6A26A9?text=Adsterra'
   }
 ];
-
-interface Ad {
-  id: number;
-  name: string;
-  advertiser: string;
-  platform: 'direct' | 'adsense' | 'adsterra';
-  status: 'active' | 'paused' | 'expired';
-  type: 'image' | 'adsense' | 'adsterra';
-  location: 'sidebar' | 'header' | 'content' | 'footer';
-  size: string;
-  impressions: number;
-  clicks: number;
-  ctr: number;
-  revenue: number;
-  startDate: string;
-  endDate: string;
-  imageUrl?: string;
-  targetUrl?: string;
-  adsenseCode?: string;
-  adsenseSlot?: string;
-  adsterraCode?: string;
-  advertiserImage?: string;
-}
 
 const AdvertisementManager = () => {
   const [ads, setAds] = useState<Ad[]>(adsMockData);

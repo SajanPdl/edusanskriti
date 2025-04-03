@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { 
   Search, 
@@ -14,7 +13,8 @@ import {
   CheckCircle, 
   XCircle, 
   Filter,
-  Download
+  Download,
+  MessageSquare
 } from 'lucide-react';
 import { 
   Table, 
@@ -25,32 +25,8 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from 'sonner';
 
-// Mock user data
-const usersMockData = [
+const usersMockData: User[] = [
   {
     id: 1,
     name: 'Rahul Sharma',
