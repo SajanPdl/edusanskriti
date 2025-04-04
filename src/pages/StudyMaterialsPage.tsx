@@ -4,6 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
 import { Book, Filter, Download, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data for study materials
 const initialMaterials = [
@@ -90,6 +92,8 @@ const resourceTypes = [
 ];
 
 const StudyMaterialsPage = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [materials, setMaterials] = useState(initialMaterials);
   const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
@@ -121,6 +125,26 @@ const StudyMaterialsPage = () => {
     setSearchQuery('');
     setMaterials(initialMaterials);
   };
+  
+  const handleCardClick = (materialId: number) => {
+    navigate(`/content/${materialId}`);
+  };
+  
+  const handleDownload = (e: React.MouseEvent, material: any) => {
+    e.stopPropagation(); // Prevent navigation when clicking download
+    toast({
+      title: "Download Started",
+      description: `${material.title} is being downloaded.`,
+    });
+    
+    // Simulate download with sample PDF
+    window.open("https://www.africau.edu/images/default/sample.pdf", '_blank');
+  };
+  
+  const handlePreview = (e: React.MouseEvent, materialId: number) => {
+    e.stopPropagation(); // Prevent card click when clicking preview
+    navigate(`/content/${materialId}`);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -140,6 +164,10 @@ const StudyMaterialsPage = () => {
               className="max-w-3xl mx-auto"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onSearch={(query) => {
+                setSearchQuery(query);
+                setMaterials(filterMaterials());
+              }}
             />
           </form>
           
@@ -210,7 +238,11 @@ const StudyMaterialsPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {materials.map(material => (
-              <div key={material.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div 
+                key={material.id} 
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                onClick={() => handleCardClick(material.id)}
+              >
                 <div className="p-6">
                   <div className="flex items-start justify-between">
                     <div>
@@ -235,11 +267,17 @@ const StudyMaterialsPage = () => {
                   </div>
                   
                   <div className="flex space-x-2">
-                    <button className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors">
+                    <button 
+                      className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors"
+                      onClick={(e) => handleDownload(e, material)}
+                    >
                       <Download className="h-4 w-4 mr-2" />
                       Download
                     </button>
-                    <button className="flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                    <button 
+                      className="flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      onClick={(e) => handlePreview(e, material.id)}
+                    >
                       <Eye className="h-4 w-4 mr-2" />
                       Preview
                     </button>

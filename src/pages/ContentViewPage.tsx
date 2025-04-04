@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ContentDetailView from '@/components/ContentDetailView';
@@ -11,9 +11,20 @@ import { Link } from 'react-router-dom';
 
 const ContentViewPage = () => {
   const { id, type } = useParams<{ id: string, type?: string }>();
-
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  
   // Determine if this is a blog post or study material
   const isBlogPost = type === 'blog' || window.location.pathname.includes('/blog/');
+  
+  useEffect(() => {
+    // Simulate loading content
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [id]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -28,10 +39,18 @@ const ContentViewPage = () => {
           </Button>
         </div>
         
-        {isBlogPost ? (
-          <BlogPostView />
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-edu-purple"></div>
+          </div>
         ) : (
-          <ContentDetailView />
+          <>
+            {isBlogPost ? (
+              <BlogPostView />
+            ) : (
+              <ContentDetailView />
+            )}
+          </>
         )}
       </div>
       <Footer />

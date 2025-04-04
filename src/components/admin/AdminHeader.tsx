@@ -1,9 +1,11 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Bell, Search, User, GraduationCap } from 'lucide-react';
+import { Bell, Search, User, GraduationCap, BarChart3 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Card } from '@/components/ui/card';
 
 const AdminHeader = () => {
   return (
@@ -11,7 +13,10 @@ const AdminHeader = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/" className="flex items-center space-x-2 mr-8">
-            <GraduationCap className="h-8 w-8 text-edu-purple" />
+            <div className="relative">
+              <GraduationCap className="h-8 w-8 text-edu-purple" />
+              <div className="absolute -top-1 -right-1 h-3 w-3 bg-edu-orange rounded-full"></div>
+            </div>
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-edu-purple to-edu-blue">
               EduSanskriti
             </span>
