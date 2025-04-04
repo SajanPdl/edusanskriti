@@ -1,13 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ContentDetailView from '@/components/ContentDetailView';
 import BlogPostView from '@/components/BlogPostView';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { studyMaterialsData } from '@/data/studyMaterialsData';
 
 const ContentViewPage = () => {
   const { id, type } = useParams<{ id: string, type?: string }>();
@@ -18,13 +18,21 @@ const ContentViewPage = () => {
   const isBlogPost = type === 'blog' || window.location.pathname.includes('/blog/');
   
   useEffect(() => {
+    // Verify that the content exists
+    if (id && !isBlogPost) {
+      const contentExists = studyMaterialsData.some(material => material.id === Number(id));
+      if (!contentExists) {
+        navigate('/not-found');
+      }
+    }
+    
     // Simulate loading content
     const timer = setTimeout(() => {
       setLoading(false);
     }, 500);
     
     return () => clearTimeout(timer);
-  }, [id]);
+  }, [id, isBlogPost, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
