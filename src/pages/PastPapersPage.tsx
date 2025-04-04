@@ -1,9 +1,10 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
 import { FileText, Filter, Download, Calendar, Award } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data for past papers
 const initialPapers = [
@@ -102,6 +103,8 @@ const years = [2023, 2022, 2021, 2020, 2019, 2018];
 const difficulties = ["Easy", "Medium", "Hard"];
 
 const PastPapersPage = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [papers, setPapers] = useState(initialPapers);
   const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
@@ -125,8 +128,12 @@ const PastPapersPage = () => {
     });
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setPapers(filterPapers());
+  };
+
+  const handleApplyFilters = () => {
     setPapers(filterPapers());
   };
 
@@ -138,6 +145,21 @@ const PastPapersPage = () => {
     setOnlySolutions(false);
     setSearchQuery('');
     setPapers(initialPapers);
+  };
+
+  const handlePaperClick = (paperId: number) => {
+    navigate(`/content/${paperId}?type=paper`);
+  };
+
+  const handleDownload = (e: React.MouseEvent, paper: any, isSolution: boolean = false) => {
+    e.stopPropagation();
+    toast({
+      title: `Download Started`,
+      description: `${isSolution ? 'Solution for ' : ''}${paper.title} is being downloaded.`,
+    });
+    
+    // Simulating download with example URL
+    window.open("https://example.com/sample.pdf", '_blank');
   };
 
   return (
@@ -152,14 +174,16 @@ const PastPapersPage = () => {
             Filter by grade, subject, year, or difficulty level to find the right papers for your needs.
           </p>
           
-          <form onSubmit={handleSearch} className="mb-10">
+          <div className="mb-10">
             <SearchBar 
               placeholder="Search past papers..." 
               className="max-w-3xl mx-auto"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onSearch={handleSearch}
+              category="papers"
             />
-          </form>
+          </div>
           
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-10">
             <div className="flex items-center mb-4">
@@ -245,7 +269,7 @@ const PastPapersPage = () => {
             </div>
             
             <button 
-              onClick={handleSearch}
+              onClick={handleApplyFilters}
               className="mt-6 btn-primary w-full sm:w-auto"
               type="button"
             >
@@ -255,7 +279,11 @@ const PastPapersPage = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {papers.map(paper => (
-              <div key={paper.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+              <div 
+                key={paper.id} 
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                onClick={() => handlePaperClick(paper.id)}
+              >
                 <div className="p-6">
                   <div className="flex items-start justify-between">
                     <div>
@@ -283,12 +311,18 @@ const PastPapersPage = () => {
                   </div>
                   
                   <div className="flex space-x-2">
-                    <button className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors">
+                    <button 
+                      className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors"
+                      onClick={(e) => handleDownload(e, paper)}
+                    >
                       <FileText className="h-4 w-4 mr-2" />
                       Download Paper
                     </button>
                     {paper.hasSolution && (
-                      <button className="flex items-center justify-center px-4 py-2 bg-edu-orange text-white rounded-lg hover:bg-edu-gold transition-colors">
+                      <button 
+                        className="flex items-center justify-center px-4 py-2 bg-edu-orange text-white rounded-lg hover:bg-edu-gold transition-colors"
+                        onClick={(e) => handleDownload(e, paper, true)}
+                      >
                         <Download className="h-4 w-4 mr-2" />
                         Solution
                       </button>

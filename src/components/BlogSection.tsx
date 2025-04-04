@@ -1,6 +1,6 @@
 
 import { Calendar, User, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,9 +48,18 @@ const blogPosts = [
 
 const BlogSection = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleCardClick = (postId: number) => {
-    console.log(`Navigating to blog post: ${postId}`);
+    navigate(`/blog/${postId}`);
+  };
+
+  const handleViewAllClick = () => {
+    toast({
+      title: "Blog Section",
+      description: "Navigating to all articles page",
+    });
+    navigate("/blog");
   };
 
   return (
@@ -70,7 +79,7 @@ const BlogSection = () => {
               className="overflow-hidden group hover:shadow-neon transition-all duration-300 h-full cursor-pointer"
               onClick={() => handleCardClick(post.id)}
             >
-              <Link to={`/blog/${post.id}`} className="block h-full">
+              <div className="block h-full">
                 <div className="relative h-48 overflow-hidden">
                   <img 
                     src={post.image} 
@@ -113,7 +122,7 @@ const BlogSection = () => {
                     <ArrowRight className="ml-1 h-4 w-4" />
                   </div>
                 </CardFooter>
-              </Link>
+              </div>
             </Card>
           ))}
         </div>
@@ -121,15 +130,9 @@ const BlogSection = () => {
         <div className="text-center mt-12">
           <Button 
             className="btn-primary" 
-            asChild
-            onClick={() => {
-              toast({
-                title: "Blog Section",
-                description: "Navigating to all articles page",
-              });
-            }}
+            onClick={handleViewAllClick}
           >
-            <Link to="/blog">View All Articles</Link>
+            View All Articles
           </Button>
         </div>
       </div>

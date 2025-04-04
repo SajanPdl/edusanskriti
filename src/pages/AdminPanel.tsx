@@ -10,7 +10,11 @@ import {
   BellRing, 
   Settings,
   Tag,
-  GraduationCap
+  GraduationCap,
+  BarChart,
+  PieChart,
+  LineChart,
+  TrendingUp
 } from 'lucide-react';
 import UserManagement from '@/components/admin/UserManagement';
 import BlogEditor from '@/components/admin/BlogEditor';
@@ -21,6 +25,7 @@ import AdminSidebar from '@/components/admin/AdminSidebar';
 import CategoriesManager from '@/components/admin/CategoriesManager';
 import GradesManager from '@/components/admin/GradesManager';
 import PastPapersManager from '@/components/admin/PastPapersManager';
+import AdminSettings from '@/components/admin/AdminSettings';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -90,6 +95,34 @@ const AdminPanel = () => {
                       <div className="p-3 bg-green-100 rounded-full dark:bg-green-900">
                         <FileText className="h-6 w-6 text-green-600 dark:text-green-300" />
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-white dark:bg-gray-800">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-bold mb-4 flex items-center">
+                      <TrendingUp className="h-5 w-5 mr-2 text-edu-purple" />
+                      Student Engagement
+                    </h3>
+                    <div className="h-64 flex items-center justify-center border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+                      <LineChart className="h-8 w-8 text-gray-400" />
+                      <span className="ml-2 text-gray-500">Student Engagement Chart</span>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-white dark:bg-gray-800">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-bold mb-4 flex items-center">
+                      <PieChart className="h-5 w-5 mr-2 text-edu-purple" />
+                      Content Distribution
+                    </h3>
+                    <div className="h-64 flex items-center justify-center border border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+                      <PieChart className="h-8 w-8 text-gray-400" />
+                      <span className="ml-2 text-gray-500">Content Distribution Chart</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -211,7 +244,7 @@ const AdminPanel = () => {
           {activeTab === 'settings' && (
             <div className="space-y-4">
               <h1 className="text-3xl font-bold">Settings</h1>
-              <p className="text-gray-500 dark:text-gray-400">Manage system settings here.</p>
+              <AdminSettings />
             </div>
           )}
         </main>

@@ -3,18 +3,19 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Bell, Search, User, GraduationCap } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Link } from 'react-router-dom';
 
 const AdminHeader = () => {
   return (
     <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-4 px-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <div className="flex items-center space-x-2 mr-8">
+          <Link to="/" className="flex items-center space-x-2 mr-8">
             <GraduationCap className="h-8 w-8 text-edu-purple" />
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-edu-purple to-edu-blue">
               EduSanskriti
             </span>
-          </div>
+          </Link>
           <div className="relative hidden md:block">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input 

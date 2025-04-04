@@ -11,10 +11,12 @@ import {
   Tag,
   GraduationCap,
   ChevronRight,
-  User
+  User,
+  LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminSidebarProps {
   activeTab: string;
@@ -23,6 +25,7 @@ interface AdminSidebarProps {
 
 const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
   const [contentOpen, setContentOpen] = React.useState(true);
+  const { toast } = useToast();
   
   const sidebarItems = [
     {
@@ -78,6 +81,13 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
       id: 'settings'
     }
   ];
+  
+  const handleLogout = () => {
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out of the admin panel.",
+    });
+  };
   
   return (
     <aside className="w-64 h-full bg-gray-900 text-white flex flex-col">
@@ -155,8 +165,14 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
           </div>
           <div>
             <p className="text-sm font-medium">Admin User</p>
-            <button className="text-xs text-gray-400 hover:text-gray-300">
-              Logout
+            <button 
+              className="text-xs text-gray-400 hover:text-gray-300"
+              onClick={handleLogout}
+            >
+              <span className="flex items-center">
+                <LogOut className="h-3 w-3 mr-1" />
+                Logout
+              </span>
             </button>
           </div>
         </div>

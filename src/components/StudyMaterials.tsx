@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, FileText, BookText, Search, Download, Star, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { useToast } from "@/hooks/use-toast";
 
-// Sample data for study materials
 const studyMaterialsData = [
   {
     id: 1,
@@ -127,12 +125,12 @@ const studyMaterialsData = [
   },
 ];
 
-// Categories for filtering
 const categories = ["All", "High School", "Bachelor's", "Engineering", "Medical"];
 const subjects = ["All", "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science", "English", "History", "Economics"];
 
 const StudyMaterials = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeSubject, setActiveSubject] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -147,8 +145,6 @@ const StudyMaterials = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    // In a real application, this would trigger a file download
-    // For now, we'll just show a toast notification
     toast({
       title: "Download Started",
       description: `${title} is being downloaded.`,
@@ -156,8 +152,17 @@ const StudyMaterials = () => {
     
     console.log(`Downloading material ID: ${id}`);
     
-    // If there was a real PDF URL
-    // window.open(material.pdfUrl, '_blank');
+    window.open("https://example.com/sample.pdf", '_blank');
+  };
+
+  const handlePreview = (id: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/content/${id}`);
+  };
+
+  const handleCardClick = (id: number) => {
+    navigate(`/content/${id}`);
   };
 
   const filteredMaterials = studyMaterialsData.filter(material => {
@@ -193,7 +198,6 @@ const StudyMaterials = () => {
           </p>
         </div>
 
-        {/* Search and Filters */}
         <div className="mb-12">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
             <div className="w-full md:w-1/3">
@@ -233,16 +237,16 @@ const StudyMaterials = () => {
           </div>
         </div>
 
-        {/* Materials Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredMaterials.map((material) => (
             <div key={material.id} className="relative">
               <Card 
-                className={`interactive-card h-full overflow-hidden transition-all ${hoveredId === material.id ? 'shadow-neon' : 'shadow-md'}`}
+                className={`interactive-card h-full overflow-hidden transition-all ${hoveredId === material.id ? 'shadow-neon' : 'shadow-md'} cursor-pointer`}
                 onMouseEnter={() => setHoveredId(material.id)}
                 onMouseLeave={() => setHoveredId(null)}
+                onClick={() => handleCardClick(material.id)}
               >
-                <Link to={`/content/${material.id}`} className="block h-full">
+                <div className="block h-full">
                   <CardHeader className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       {getIcon(material.subject)}
@@ -273,49 +277,14 @@ const StudyMaterials = () => {
                           <span>{material.rating}</span>
                         </div>
                       </div>
-                      <HoverCard>
-                        <HoverCardTrigger asChild>
-                          <Button variant="ghost" size="sm" className="p-0 h-8 w-8">
-                            <Eye className="h-4 w-4 text-edu-purple" />
-                          </Button>
-                        </HoverCardTrigger>
-                        <HoverCardContent className="w-80">
-                          <div className="space-y-2">
-                            <h4 className="text-sm font-semibold">{material.title}</h4>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {material.description}
-                            </p>
-                            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                              <span>{material.subject}</span>
-                              <span>{material.views.toLocaleString()} views</span>
-                            </div>
-                            <div className="flex space-x-2 mt-2">
-                              <Button 
-                                size="sm" 
-                                className="w-1/2" 
-                                asChild
-                              >
-                                <Link to={`/content/${material.id}`}>View</Link>
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="w-1/2"
-                                onClick={(e) => handleDownload(material.id, material.title, e)}
-                              >
-                                <Download className="h-3 w-3 mr-1" />
-                                Download
-                              </Button>
-                            </div>
-                          </div>
-                        </HoverCardContent>
-                      </HoverCard>
+                      <Button variant="ghost" size="sm" className="p-0 h-8 w-8" onClick={(e) => handlePreview(material.id, e)}>
+                        <Eye className="h-4 w-4 text-edu-purple" />
+                      </Button>
                     </div>
                   </CardFooter>
-                </Link>
+                </div>
               </Card>
               
-              {/* Collapsible Key Points & Formulas (only for Math and Physics) */}
               {(material.subject === "Mathematics" || material.subject === "Physics") && (
                 <Collapsible 
                   open={expandedCardId === material.id}
@@ -385,7 +354,6 @@ const StudyMaterials = () => {
           ))}
         </div>
 
-        {/* See More Button */}
         <div className="text-center mt-12">
           <Button className="btn-primary scale-on-hover" asChild>
             <Link to="/study-materials">Explore All Materials</Link>

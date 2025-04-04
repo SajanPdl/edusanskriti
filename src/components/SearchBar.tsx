@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import useSearchSuggestions from '@/hooks/use-search-suggestions';
@@ -100,7 +101,7 @@ const SearchBar = ({
   
   return (
     <div ref={searchBarRef} className={`relative ${className}`}>
-      <form onSubmit={handleSubmit} className="relative">
+      <div className="relative">
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
         <input
           ref={inputRef}
@@ -110,14 +111,20 @@ const SearchBar = ({
           onFocus={() => setShowSuggestions(suggestions.length > 0)}
           placeholder={placeholder}
           className="w-full pl-12 pr-4 py-3 rounded-full border-2 border-gray-100 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-2 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow-sm transition-all duration-300"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSubmit(e);
+            }
+          }}
         />
         <button
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-edu-purple hover:bg-edu-indigo text-white p-2 rounded-full transition-colors duration-300"
         >
           <Search className="h-4 w-4" />
         </button>
-      </form>
+      </div>
       
       {showSuggestions && suggestions.length > 0 && (
         <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
