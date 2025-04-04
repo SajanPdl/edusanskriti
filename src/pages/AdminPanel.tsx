@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -21,6 +20,7 @@ import AdminHeader from '@/components/admin/AdminHeader';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import CategoriesManager from '@/components/admin/CategoriesManager';
 import GradesManager from '@/components/admin/GradesManager';
+import PastPapersManager from '@/components/admin/PastPapersManager';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -169,7 +169,7 @@ const AdminPanel = () => {
           {activeTab === 'papers' && (
             <div className="space-y-4">
               <h1 className="text-3xl font-bold">Past Papers</h1>
-              <p className="text-gray-500 dark:text-gray-400">Manage past papers content here.</p>
+              <PastPapersManager />
             </div>
           )}
           

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from "@/hooks/use-toast";
 
 // Sample blog posts data
 const blogPosts = [
@@ -46,6 +47,12 @@ const blogPosts = [
 ];
 
 const BlogSection = () => {
+  const { toast } = useToast();
+
+  const handleCardClick = (postId: number) => {
+    console.log(`Navigating to blog post: ${postId}`);
+  };
+
   return (
     <section id="blog" className="py-20 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4">
@@ -60,7 +67,8 @@ const BlogSection = () => {
           {blogPosts.map(post => (
             <Card 
               key={post.id} 
-              className="overflow-hidden group hover:shadow-neon transition-all duration-300 h-full"
+              className="overflow-hidden group hover:shadow-neon transition-all duration-300 h-full cursor-pointer"
+              onClick={() => handleCardClick(post.id)}
             >
               <Link to={`/blog/${post.id}`} className="block h-full">
                 <div className="relative h-48 overflow-hidden">
@@ -111,7 +119,16 @@ const BlogSection = () => {
         </div>
         
         <div className="text-center mt-12">
-          <Button className="btn-primary" asChild>
+          <Button 
+            className="btn-primary" 
+            asChild
+            onClick={() => {
+              toast({
+                title: "Blog Section",
+                description: "Navigating to all articles page",
+              });
+            }}
+          >
             <Link to="/blog">View All Articles</Link>
           </Button>
         </div>

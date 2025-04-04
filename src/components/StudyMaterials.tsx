@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { useToast } from "@/hooks/use-toast";
 
 // Sample data for study materials
 const studyMaterialsData = [
@@ -131,6 +132,7 @@ const categories = ["All", "High School", "Bachelor's", "Engineering", "Medical"
 const subjects = ["All", "Mathematics", "Physics", "Chemistry", "Biology", "Computer Science", "English", "History", "Economics"];
 
 const StudyMaterials = () => {
+  const { toast } = useToast();
   const [activeCategory, setActiveCategory] = useState("All");
   const [activeSubject, setActiveSubject] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
@@ -139,6 +141,23 @@ const StudyMaterials = () => {
 
   const toggleCardExpand = (id: number) => {
     setExpandedCardId(expandedCardId === id ? null : id);
+  };
+
+  const handleDownload = (id: number, title: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // In a real application, this would trigger a file download
+    // For now, we'll just show a toast notification
+    toast({
+      title: "Download Started",
+      description: `${title} is being downloaded.`,
+    });
+    
+    console.log(`Downloading material ID: ${id}`);
+    
+    // If there was a real PDF URL
+    // window.open(material.pdfUrl, '_blank');
   };
 
   const filteredMaterials = studyMaterialsData.filter(material => {
@@ -243,7 +262,10 @@ const StudyMaterials = () => {
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center space-x-4">
                         <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                          <Download className="h-4 w-4 mr-1" />
+                          <Download 
+                            className="h-4 w-4 mr-1 cursor-pointer hover:text-edu-purple" 
+                            onClick={(e) => handleDownload(material.id, material.title, e)}
+                          />
                           <span>{material.downloads.toLocaleString()}</span>
                         </div>
                         <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
@@ -267,9 +289,24 @@ const StudyMaterials = () => {
                               <span>{material.subject}</span>
                               <span>{material.views.toLocaleString()} views</span>
                             </div>
-                            <Button size="sm" className="w-full mt-2" asChild>
-                              <Link to={`/content/${material.id}`}>View Material</Link>
-                            </Button>
+                            <div className="flex space-x-2 mt-2">
+                              <Button 
+                                size="sm" 
+                                className="w-1/2" 
+                                asChild
+                              >
+                                <Link to={`/content/${material.id}`}>View</Link>
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="w-1/2"
+                                onClick={(e) => handleDownload(material.id, material.title, e)}
+                              >
+                                <Download className="h-3 w-3 mr-1" />
+                                Download
+                              </Button>
+                            </div>
                           </div>
                         </HoverCardContent>
                       </HoverCard>
@@ -322,7 +359,19 @@ const StudyMaterials = () => {
                       </div>
                     </div>
                     
-                    <div className="flex justify-center">
+                    <div className="flex justify-between">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex items-center gap-1"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDownload(material.id, material.title, e);
+                        }}
+                      >
+                        <Download className="h-3 w-3" />
+                        Download
+                      </Button>
                       <Button size="sm" className="bg-gradient-to-r from-edu-purple to-edu-blue text-white hover:from-edu-blue hover:to-edu-purple transition-all duration-300 transform hover:scale-105" asChild>
                         <Link to={`/content/${material.id}`}>
                           View Full Material

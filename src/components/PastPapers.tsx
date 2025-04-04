@@ -1,5 +1,6 @@
 
 import { FileText, Calendar, Clock, Download } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
 // Sample data for past papers
 const pastPapersData = [
@@ -71,6 +72,18 @@ const subjects = ["Mathematics", "Physics", "Chemistry", "Biology", "Computer Sc
 const difficulties = ["Easy", "Medium", "Hard"];
 
 const PastPapers = () => {
+  const { toast } = useToast();
+
+  const handleDownload = (paperId: number, paperTitle: string) => {
+    // In a real application, this would trigger a file download
+    // For now, we'll just show a toast notification
+    toast({
+      title: "Download Started",
+      description: `${paperTitle} is being downloaded.`,
+    });
+    console.log(`Downloading paper ID: ${paperId}`);
+  };
+
   return (
     <section id="past-papers" className="py-20">
       <div className="container mx-auto px-4">
@@ -160,7 +173,10 @@ const PastPapers = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="inline-flex items-center gap-1 bg-edu-blue/10 hover:bg-edu-blue/20 text-edu-blue px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-300">
+                    <button 
+                      className="inline-flex items-center gap-1 bg-edu-blue/10 hover:bg-edu-blue/20 text-edu-blue px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-300"
+                      onClick={() => handleDownload(paper.id, paper.title)}
+                    >
                       <Download className="h-4 w-4" />
                       <span className="hidden sm:inline">Download</span>
                     </button>
