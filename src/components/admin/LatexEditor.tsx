@@ -2,6 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 
+// Define MathJax interface to fix TypeScript errors
+interface MathJaxHub {
+  Config: (config: any) => void;
+  Queue: (tasks: any[]) => void;
+}
+
+interface MathJaxType {
+  Hub: MathJaxHub;
+}
+
+// Extend Window interface to include MathJax
+declare global {
+  interface Window {
+    MathJax?: MathJaxType;
+  }
+}
+
 interface LatexEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -29,13 +46,15 @@ const LatexEditor: React.FC<LatexEditorProps> = ({ value, onChange }) => {
       
       script.onload = () => {
         // Configure MathJax
-        window.MathJax.Hub.Config({
-          tex2jax: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']],
-            displayMath: [['$$', '$$'], ['\\[', '\\]']],
-            processEscapes: true
-          }
-        });
+        if (window.MathJax) {
+          window.MathJax.Hub.Config({
+            tex2jax: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']],
+              displayMath: [['$$', '$$'], ['\\[', '\\]']],
+              processEscapes: true
+            }
+          });
+        }
       };
     }
     
@@ -161,9 +180,9 @@ const LatexEditor: React.FC<LatexEditorProps> = ({ value, onChange }) => {
           
           <div className="mt-3 font-medium">LaTeX Tips:</div>
           <ul className="list-disc pl-5 space-y-1 mt-1">
-            <li>Use <code>\frac{numerator}{denominator}</code> for fractions</li>
-            <li>Use <code>\sqrt{expression}</code> for square roots</li>
-            <li>Use <code>^{power}</code> for superscripts and <code>_{subscript}</code> for subscripts</li>
+            <li>Use <code>\frac{"{num}"}{"{denom}"}</code> for fractions</li>
+            <li>Use <code>\sqrt{"{expr}"}</code> for square roots</li>
+            <li>Use <code>^{"{pow}"}</code> for superscripts and <code>_{"{sub}"}</code> for subscripts</li>
             <li>Greek letters: <code>\alpha</code>, <code>\beta</code>, <code>\pi</code>, etc.</li>
             <li>For more complex formulas, please refer to LaTeX documentation</li>
           </ul>
