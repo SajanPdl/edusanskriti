@@ -1,9 +1,13 @@
 
 import { createClient } from '@supabase/supabase-js';
 
+// Use hardcoded values from the auto-generated client as fallbacks
+const SUPABASE_URL = "https://gwludaapupacqneiuybr.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd3bHVkYWFwdXBhY3FuZWl1eWJyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM3Mzc3NzksImV4cCI6MjA1OTMxMzc3OX0.abf97sXujsovsVmixD58bJArcaybNqQ_XhEwVtDurrU";
+
 // Get environment variables with fallbacks for development
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || SUPABASE_ANON_KEY;
 
 // Check if we have the required configuration
 if (!supabaseUrl || !supabaseAnonKey) {
