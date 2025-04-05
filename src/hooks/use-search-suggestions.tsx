@@ -109,5 +109,4 @@ export const useSearchSuggestions = (query: string, {
   };
 };
 
-// Also provide as default export for backward compatibility
 export default useSearchSuggestions;

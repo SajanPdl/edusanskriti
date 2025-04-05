@@ -2,13 +2,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useSearchSuggestions } from '@/hooks/use-search-suggestions';
+import useSearchSuggestions from '@/hooks/use-search-suggestions';
 import { fetchStudyMaterials } from '@/utils/studyMaterialsDbUtils';
 import { fetchPastPapers } from '@/utils/pastPapersDbUtils';
 import { fetchBlogPosts } from '@/utils/blogUtils';
 import { StudyMaterial } from '@/data/studyMaterialsData';
 import { PastPaper } from '@/utils/pastPapersDbUtils';
 import { useToast } from '@/hooks/use-toast';
+
+// Define props interface for SearchBar
+interface SearchBarProps {
+  placeholder?: string;
+  className?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearch?: (query: string) => void;
+  category?: string;
+}
 
 type SearchResult = {
   id: number;
@@ -19,8 +29,15 @@ type SearchResult = {
   subject?: string;
 };
 
-const SearchBar = () => {
-  const [query, setQuery] = useState('');
+const SearchBar: React.FC<SearchBarProps> = ({
+  placeholder = "Search...",
+  className = "",
+  value,
+  onChange,
+  onSearch,
+  category = "all"
+}) => {
+  const [query, setQuery] = useState(value || '');
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -29,6 +46,13 @@ const SearchBar = () => {
   const { suggestions, isLoading } = useSearchSuggestions(query);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Update local state when prop changes
+  useEffect(() => {
+    if (value !== undefined) {
+      setQuery(value);
+    }
+  }, [value]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -126,6 +150,11 @@ const SearchBar = () => {
     
     if (query.trim() === '') return;
     
+    if (onSearch) {
+      onSearch(query);
+      return;
+    }
+    
     if (searchResults.length > 0) {
       // Navigate to the first result
       const firstResult = searchResults[0];
@@ -183,8 +212,16 @@ const SearchBar = () => {
     setQuery('');
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setQuery(newValue);
+    if (onChange) {
+      onChange(e);
+    }
+  };
+
   return (
-    <div className="relative" ref={searchRef}>
+    <div className={`relative ${className}`} ref={searchRef}>
       <button
         onClick={() => setShowSearchBar(!showSearchBar)}
         className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-edu-purple"
@@ -198,10 +235,10 @@ const SearchBar = () => {
           <form onSubmit={handleSearch} className="relative">
             <input
               type="text"
-              placeholder="Search for materials, papers, blogs..."
+              placeholder={placeholder}
               className="w-full p-2 pl-10 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-edu-purple"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={handleInputChange}
               autoFocus
             />
             <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />

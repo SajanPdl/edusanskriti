@@ -13,13 +13,17 @@ interface PdfViewerProps {
   fileUrl: string;
   title?: string;
   height?: number;
+  pdfUrl?: string; // Add this prop to match the usage in ContentDetailView
 }
 
-const PdfViewer = ({ fileUrl, title, height = 600 }: PdfViewerProps) => {
+const PdfViewer = ({ fileUrl, pdfUrl, title, height = 600 }: PdfViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [scale, setScale] = useState<number>(1.0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Use pdfUrl if provided, otherwise fall back to fileUrl
+  const documentUrl = pdfUrl || fileUrl;
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -90,7 +94,7 @@ const PdfViewer = ({ fileUrl, title, height = 600 }: PdfViewerProps) => {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => window.open(fileUrl, '_blank')}
+                  onClick={() => window.open(documentUrl, '_blank')}
                   className="h-8 w-8"
                 >
                   <Download className="h-4 w-4" />
@@ -146,13 +150,13 @@ const PdfViewer = ({ fileUrl, title, height = 600 }: PdfViewerProps) => {
         )}
         
         <Document
-          file={fileUrl}
+          file={documentUrl}
           onLoadSuccess={onDocumentLoadSuccess}
           loading={<Skeleton className="h-[600px] w-full max-w-2xl mx-auto rounded-md" />}
           error={
             <div className="text-center p-10">
               <p className="text-red-500 mb-4">Failed to load PDF document</p>
-              <Button onClick={() => window.open(fileUrl, '_blank')}>
+              <Button onClick={() => window.open(documentUrl, '_blank')}>
                 Download Instead
               </Button>
             </div>

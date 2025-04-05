@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   FileText, 
@@ -17,6 +18,12 @@ import {
 } from 'lucide-react';
 import PdfViewer from './PdfViewer';
 import { useToast } from "@/hooks/use-toast";
+import { StudyMaterial } from '@/data/studyMaterialsData';
+
+// Update the StudyMaterial interface to include downloads
+interface ExtendedStudyMaterial extends StudyMaterial {
+  downloads?: number;
+}
 
 interface ContentDetailViewProps {
   content: any;
@@ -64,7 +71,7 @@ const ContentDetailView: React.FC<ContentDetailViewProps> = ({ content, type }) 
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
       <div className="md:flex">
         <div className="md:w-1/2 bg-gray-200 dark:bg-gray-700">
-          <PdfViewer pdfUrl={content.fileUrl && typeof content.fileUrl === 'string' ? content.fileUrl : "/sample.pdf"} />
+          <PdfViewer fileUrl={content.fileUrl && typeof content.fileUrl === 'string' ? content.fileUrl : "/sample.pdf"} />
         </div>
         <div className="p-8 md:w-1/2">
           <div className="flex items-start justify-between mb-4">

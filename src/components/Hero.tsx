@@ -1,5 +1,14 @@
+
 import React from 'react';
 import { Rocket } from 'lucide-react';
+
+interface AnimatedBubbleProps {
+  style: React.CSSProperties;
+}
+
+const AnimatedBubble: React.FC<AnimatedBubbleProps> = ({ style }) => {
+  return <div className="absolute bg-white opacity-10 rounded-full animate-bubble" style={style}></div>;
+};
 
 const Hero = () => {
   return (
@@ -26,10 +35,10 @@ const Hero = () => {
       
       {/* Animated Background Bubbles */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <div className="absolute bg-white opacity-10 rounded-full animate-bubble" style={{ top: '10%', left: '20%', width: '80px', height: '80px' }}></div>
-        <div className="absolute bg-white opacity-10 rounded-full animate-bubble" style={{ top: '30%', right: '10%', width: '60px', height: '60px' }}></div>
-        <div className="absolute bg-white opacity-10 rounded-full animate-bubble" style={{ bottom: '20%', left: '30%', width: '100px', height: '100px' }}></div>
-        <div className="absolute bg-white opacity-10 rounded-full animate-bubble" style={{ bottom: '10%', right: '20%', width: '40px', height: '40px' }}></div>
+        <AnimatedBubble style={{ top: '10%', left: '20%', width: '80px', height: '80px' }} />
+        <AnimatedBubble style={{ top: '30%', right: '10%', width: '60px', height: '60px' }} />
+        <AnimatedBubble style={{ bottom: '20%', left: '30%', width: '100px', height: '100px' }} />
+        <AnimatedBubble style={{ bottom: '10%', right: '20%', width: '40px', height: '40px' }} />
       </div>
     </section>
   );
