@@ -33,28 +33,68 @@ export const fetchStudyMaterialById = async (id: number): Promise<StudyMaterial 
 
 export const getCategories = async (): Promise<string[]> => {
   const { data, error } = await supabase
-    .from('study_materials')
-    .select('category');
+    .from('categories')
+    .select('name');
 
   if (error) {
     console.error('Error fetching categories:', error);
     return [];
   }
 
-  const uniqueCategories = [...new Set(data.map(item => item.category))];
-  return uniqueCategories;
+  return data.map(item => item.name) || [];
 };
 
 export const getSubjects = async (): Promise<string[]> => {
   const { data, error } = await supabase
-    .from('study_materials')
-    .select('subject');
+    .from('subjects')
+    .select('name');
 
   if (error) {
     console.error('Error fetching subjects:', error);
     return [];
   }
 
-  const uniqueSubjects = [...new Set(data.map(item => item.subject))];
-  return uniqueSubjects;
+  return data.map(item => item.name) || [];
+};
+
+export const updateStudyMaterial = async (material: StudyMaterial): Promise<boolean> => {
+  const { error } = await supabase
+    .from('study_materials')
+    .update(material)
+    .eq('id', material.id);
+
+  if (error) {
+    console.error('Error updating study material:', error);
+    return false;
+  }
+
+  return true;
+};
+
+export const createStudyMaterial = async (material: Omit<StudyMaterial, 'id'>): Promise<StudyMaterial | null> => {
+  const { data, error } = await supabase
+    .from('study_materials')
+    .insert([material])
+    .select();
+
+  if (error) {
+    console.error('Error creating study material:', error);
+    return null;
+  }
+
+  return data[0] || null;
+};
+
+export const deleteStudyMaterial = async (id: number): Promise<boolean> => {
+  const { error } = await supabase
+    .from('study_materials')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error(`Error deleting study material with id ${id}:`, error);
+    return false;
+  }
+
+  return true;
 };

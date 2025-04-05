@@ -132,4 +132,8 @@
   .mobile-nav-link {
     @apply block py-2 px-4 text-gray-800 dark:text-gray-200 hover:bg-edu-purple/10 hover:text-edu-purple rounded-md transition-colors;
   }
+  
+  .font-playfair {
+    font-family: 'Playfair Display', serif;
+  }
 }
