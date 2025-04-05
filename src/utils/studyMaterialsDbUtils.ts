@@ -1,5 +1,5 @@
 
-import { supabase } from './blogUtils';
+import { supabase } from '@/lib/supabase';
 import { StudyMaterial } from '@/data/studyMaterialsData';
 
 export const fetchStudyMaterials = async (): Promise<StudyMaterial[]> => {
