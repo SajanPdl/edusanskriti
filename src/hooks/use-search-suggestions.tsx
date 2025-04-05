@@ -48,7 +48,7 @@ interface UseSuggestionsProps {
   maxSuggestions?: number;
 }
 
-const useSearchSuggestions = (query: string, {
+export const useSearchSuggestions = (query: string, {
   category = 'all',
   minQueryLength = 2,
   maxSuggestions = 5
@@ -109,4 +109,5 @@ const useSearchSuggestions = (query: string, {
   };
 };
 
+// Also provide as default export for backward compatibility
 export default useSearchSuggestions;

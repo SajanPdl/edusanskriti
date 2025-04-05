@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import useSearchSuggestions from '@/hooks/use-search-suggestions';
+import { useSearchSuggestions } from '@/hooks/use-search-suggestions';
 import { fetchStudyMaterials } from '@/utils/studyMaterialsDbUtils';
 import { fetchPastPapers } from '@/utils/pastPapersDbUtils';
 import { fetchBlogPosts } from '@/utils/blogUtils';
