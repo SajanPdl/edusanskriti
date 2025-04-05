@@ -7,7 +7,7 @@ import ContentDetailView from '@/components/ContentDetailView';
 import BlogPostView from '@/components/BlogPostView';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { studyMaterialsData } from '@/data/studyMaterialsData';
+import { fetchStudyMaterialById } from '@/utils/studyMaterialsDbUtils';
 
 const ContentViewPage = () => {
   const { id, type } = useParams<{ id: string, type?: string }>();
@@ -19,19 +19,26 @@ const ContentViewPage = () => {
   
   useEffect(() => {
     // Verify that the content exists
-    if (id && !isBlogPost) {
-      const contentExists = studyMaterialsData.some(material => material.id === Number(id));
-      if (!contentExists) {
-        navigate('/not-found');
+    const checkContentExists = async () => {
+      if (id && !isBlogPost) {
+        try {
+          const material = await fetchStudyMaterialById(Number(id));
+          if (!material) {
+            navigate('/not-found');
+          }
+        } catch (error) {
+          console.error("Error checking if content exists:", error);
+          navigate('/not-found');
+        }
       }
-    }
+      
+      // Set loading to false
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
+    };
     
-    // Simulate loading content
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 500);
-    
-    return () => clearTimeout(timer);
+    checkContentExists();
   }, [id, isBlogPost, navigate]);
 
   return (
