@@ -45,26 +45,26 @@ export const getSubjectIcon = (subject: string): React.ReactNode => {
   
   switch (subject.toLowerCase()) {
     case 'mathematics':
-      return <Calculator className={className} />;
+      return React.createElement(Calculator, { className });
     case 'science':
-      return <Flask className={className} />;
+      return React.createElement(Flask, { className });
     case 'physics':
-      return <Flask className={className} />;
+      return React.createElement(Flask, { className });
     case 'chemistry':
-      return <Flask className={className} />;
+      return React.createElement(Flask, { className });
     case 'biology':
-      return <BookOpen className={className} />;
+      return React.createElement(BookOpen, { className });
     case 'computer science':
-      return <Monitor className={className} />;
+      return React.createElement(Monitor, { className });
     case 'literature':
-      return <PenTool className={className} />;
+      return React.createElement(PenTool, { className });
     case 'history':
-      return <Book className={className} />;
+      return React.createElement(Book, { className });
     case 'geography':
-      return <Globe className={className} />;
+      return React.createElement(Globe, { className });
     case 'database':
-      return <Database className={className} />;
+      return React.createElement(Database, { className });
     default:
-      return <FileText className={className} />;
+      return React.createElement(FileText, { className });
   }
 };
