@@ -3,7 +3,7 @@ import { StudyMaterial } from '@/data/studyMaterialsData';
 import { 
   Book, 
   Calculator, 
-  Flask, 
+  Beaker, 
   Monitor, 
   Globe, 
   BookOpen, 
@@ -47,11 +47,11 @@ export const getSubjectIcon = (subject: string): React.ReactNode => {
     case 'mathematics':
       return React.createElement(Calculator, { className });
     case 'science':
-      return React.createElement(Flask, { className });
+      return React.createElement(Beaker, { className });
     case 'physics':
-      return React.createElement(Flask, { className });
+      return React.createElement(Beaker, { className });
     case 'chemistry':
-      return React.createElement(Flask, { className });
+      return React.createElement(Beaker, { className });
     case 'biology':
       return React.createElement(BookOpen, { className });
     case 'computer science':
