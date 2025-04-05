@@ -14,13 +14,14 @@ import {
   User,
   FileText,
   CheckCircle,
-  Formula,
+  // Replace Formula with another icon since it doesn't exist in lucide-react
+  Functions, // Using Functions icon instead
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
 import PdfViewer from './PdfViewer';
 import { Progress } from './ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -196,7 +197,8 @@ const ContentDetailView = ({ content, type }: ContentDetailViewProps) => {
           <TabsContent value="pdf" className="border rounded-lg overflow-hidden">
             {pdfUrl ? (
               <div className="h-[70vh]">
-                <PdfViewer url={pdfUrl} />
+                {/* Fix the prop name from url to fileUrl */}
+                <PdfViewer fileUrl={pdfUrl} />
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-[50vh] bg-gray-50 dark:bg-gray-800">
@@ -274,7 +276,7 @@ const ContentDetailView = ({ content, type }: ContentDetailViewProps) => {
               >
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-gray-50 dark:bg-gray-800">
                   <div className="flex items-center">
-                    <Formula className="h-5 w-5 mr-2 text-edu-purple" />
+                    <Functions className="h-5 w-5 mr-2 text-edu-purple" />
                     <h3 className="text-lg font-semibold">Important Formulas</h3>
                   </div>
                   {expandedSection === 'formulas' ? (

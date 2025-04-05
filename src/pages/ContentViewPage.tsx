@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -20,12 +19,10 @@ const ContentViewPage = () => {
   const [content, setContent] = useState<any>(null);
   const { toast } = useToast();
   
-  // Determine if this is a blog post, study material, or past paper
   const isBlogPost = type === 'blog' || window.location.pathname.includes('/blog/');
   const isPastPaper = type === 'paper' || window.location.pathname.includes('/past-papers/');
   
   useEffect(() => {
-    // Fetch the appropriate content
     const fetchContent = async () => {
       if (!id) {
         navigate('/not-found');
@@ -95,8 +92,10 @@ const ContentViewPage = () => {
           </div>
         ) : (
           <>
-            {contentType === 'blog' && <BlogPostView post={content} />}
-            {(contentType === 'material' || contentType === 'paper') && (
+            {contentType === 'blog' && content && (
+              <BlogPostView blogPost={content} />
+            )}
+            {(contentType === 'material' || contentType === 'paper') && content && (
               <ContentDetailView content={content} type={contentType} />
             )}
           </>

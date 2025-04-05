@@ -1,3 +1,4 @@
+
 export interface StudyMaterial {
   id: number;
   title: string;
@@ -18,6 +19,7 @@ export interface StudyMaterial {
   readTime?: string;
   pages?: number;
   topics?: string[];
+  downloads?: number; // Add downloads property
 }
 
 // Add categories 
