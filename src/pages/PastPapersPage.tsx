@@ -1,92 +1,14 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
 import { FileText, Filter, Download, Calendar, Award } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-
-// Mock data for past papers
-const initialPapers = [
-  {
-    id: 1,
-    title: "Grade 10 Mathematics Final Exam 2023",
-    subject: "Mathematics",
-    grade: "Grade 10",
-    year: 2023,
-    difficulty: "Medium",
-    hasSolution: true,
-    downloadCount: 2145,
-    fileSize: "1.8 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  },
-  {
-    id: 2,
-    title: "Engineering Physics Mid-Term 2022",
-    subject: "Physics",
-    grade: "Engineering",
-    year: 2022,
-    difficulty: "Hard",
-    hasSolution: true,
-    downloadCount: 1570,
-    fileSize: "2.2 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  },
-  {
-    id: 3,
-    title: "Grade 12 Chemistry Final Exam 2023",
-    subject: "Chemistry",
-    grade: "Grade 12",
-    year: 2023,
-    difficulty: "Medium",
-    hasSolution: false,
-    downloadCount: 987,
-    fileSize: "1.5 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  },
-  {
-    id: 4,
-    title: "Bachelor's Computer Science Algorithm Test 2021",
-    subject: "Computer Science",
-    grade: "Bachelor's",
-    year: 2021,
-    difficulty: "Hard",
-    hasSolution: true,
-    downloadCount: 2356,
-    fileSize: "3.1 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  },
-  {
-    id: 5,
-    title: "Grade 11 Biology Mid-Term 2022",
-    subject: "Biology",
-    grade: "Grade 11",
-    year: 2022,
-    difficulty: "Easy",
-    hasSolution: true,
-    downloadCount: 1122,
-    fileSize: "1.3 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  },
-  {
-    id: 6,
-    title: "Grade 9 History Final Exam 2023",
-    subject: "History",
-    grade: "Grade 9",
-    year: 2023,
-    difficulty: "Medium",
-    hasSolution: false,
-    downloadCount: 856,
-    fileSize: "2.0 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  }
-];
+import { useQuery } from '@tanstack/react-query';
+import { fetchPastPapers } from '@/utils/queryUtils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const categories = [
   "Grade 7", "Grade 8", "Grade 9", "Grade 10", 
@@ -105,7 +27,6 @@ const difficulties = ["Easy", "Medium", "Hard"];
 const PastPapersPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [papers, setPapers] = useState(initialPapers);
   const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
@@ -113,28 +34,32 @@ const PastPapersPage = () => {
   const [onlySolutions, setOnlySolutions] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filterPapers = () => {
-    return initialPapers.filter(paper => {
-      const matchesGrade = selectedGrade ? paper.grade === selectedGrade : true;
-      const matchesSubject = selectedSubject ? paper.subject === selectedSubject : true;
-      const matchesYear = selectedYear ? paper.year === parseInt(selectedYear) : true;
-      const matchesDifficulty = selectedDifficulty ? paper.difficulty === selectedDifficulty : true;
-      const matchesSolution = onlySolutions ? paper.hasSolution : true;
-      const matchesSearch = searchQuery 
-        ? paper.title.toLowerCase().includes(searchQuery.toLowerCase()) 
-        : true;
+  // React Query for fetching past papers
+  const { data: papers, isLoading } = useQuery({
+    queryKey: ['past-papers'],
+    queryFn: () => fetchPastPapers(),
+  });
+  
+  // Client-side filtering (in production, this would be done in the database query)
+  const filteredPapers = papers ? papers.filter(paper => {
+    const matchesGrade = selectedGrade ? paper.grade === selectedGrade : true;
+    const matchesSubject = selectedSubject ? paper.subject === selectedSubject : true;
+    const matchesYear = selectedYear ? paper.year === parseInt(selectedYear) : true;
+    const matchesDifficulty = selectedDifficulty ? paper.difficulty === selectedDifficulty : true;
+    const matchesSolution = onlySolutions ? paper.has_solution === true : true;
+    const matchesSearch = searchQuery 
+      ? paper.title.toLowerCase().includes(searchQuery.toLowerCase()) 
+      : true;
 
-      return matchesGrade && matchesSubject && matchesYear && matchesDifficulty && matchesSolution && matchesSearch;
-    });
-  };
+    return matchesGrade && matchesSubject && matchesYear && matchesDifficulty && matchesSolution && matchesSearch;
+  }) : [];
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setPapers(filterPapers());
   };
 
   const handleApplyFilters = () => {
-    setPapers(filterPapers());
+    // Filtering is handled reactively through the filteredPapers computation
   };
 
   const resetFilters = () => {
@@ -144,7 +69,6 @@ const PastPapersPage = () => {
     setSelectedDifficulty('');
     setOnlySolutions(false);
     setSearchQuery('');
-    setPapers(initialPapers);
   };
 
   const handlePaperClick = (paperId: number) => {
@@ -158,8 +82,45 @@ const PastPapersPage = () => {
       description: `${isSolution ? 'Solution for ' : ''}${paper.title} is being downloaded.`,
     });
     
-    // Simulating download with example URL
-    window.open("https://example.com/sample.pdf", '_blank');
+    // In a real app, we would call an API to increment the download count
+    
+    // Open the actual file or sample PDF
+    if (paper.file_url) {
+      window.open(paper.file_url, '_blank');
+    } else {
+      // Fallback for sample
+      window.open("https://www.africau.edu/images/default/sample.pdf", '_blank');
+    }
+  };
+
+  // Use skeleton loaders while data is loading
+  const renderSkeletons = () => {
+    return Array(6).fill(0).map((_, index) => (
+      <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-start justify-between mb-3">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-6 w-20" />
+            </div>
+            <Skeleton className="h-4 w-16" />
+          </div>
+          
+          <Skeleton className="h-6 w-3/4 mb-4" />
+          
+          <div className="flex items-center mb-4">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-24 ml-4" />
+            <Skeleton className="h-4 w-16 ml-4" />
+          </div>
+          
+          <div className="flex space-x-2">
+            <Skeleton className="h-10 w-36" />
+            <Skeleton className="h-10 w-28" />
+          </div>
+        </div>
+      </div>
+    ));
   };
 
   return (
@@ -278,59 +239,70 @@ const PastPapersPage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {papers.map(paper => (
-              <div 
-                key={paper.id} 
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-                onClick={() => handlePaperClick(paper.id)}
-              >
-                <div className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-purple/10 text-edu-purple mb-3">
-                        {paper.grade}
-                      </span>
-                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-blue/10 text-edu-blue mb-3 ml-2">
-                        {paper.subject}
+            {isLoading ? (
+              renderSkeletons()
+            ) : filteredPapers.length > 0 ? (
+              filteredPapers.map(paper => (
+                <div 
+                  key={paper.id} 
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                  onClick={() => handlePaperClick(paper.id)}
+                >
+                  <div className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-purple/10 text-edu-purple mb-3">
+                          {paper.grade}
+                        </span>
+                        <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-blue/10 text-edu-blue mb-3 ml-2">
+                          {paper.subject}
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {paper.file_size} {paper.file_type || 'PDF'}
                       </span>
                     </div>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{paper.fileSize} {paper.fileType}</span>
-                  </div>
-                  
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{paper.title}</h3>
-                  
-                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>{paper.year}</span>
-                    <span className="mx-2">•</span>
-                    <Award className="h-4 w-4 mr-1" />
-                    <span>{paper.difficulty}</span>
-                    <span className="mx-2">•</span>
-                    <Download className="h-4 w-4 mr-1" />
-                    <span>{paper.downloadCount.toLocaleString()}</span>
-                  </div>
-                  
-                  <div className="flex space-x-2">
-                    <button 
-                      className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors"
-                      onClick={(e) => handleDownload(e, paper)}
-                    >
-                      <FileText className="h-4 w-4 mr-2" />
-                      Download Paper
-                    </button>
-                    {paper.hasSolution && (
+                    
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{paper.title}</h3>
+                    
+                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      <span>{paper.year}</span>
+                      <span className="mx-2">•</span>
+                      <Award className="h-4 w-4 mr-1" />
+                      <span>{paper.difficulty}</span>
+                      <span className="mx-2">•</span>
+                      <Download className="h-4 w-4 mr-1" />
+                      <span>{paper.downloads || 0}</span>
+                    </div>
+                    
+                    <div className="flex space-x-2">
                       <button 
-                        className="flex items-center justify-center px-4 py-2 bg-edu-orange text-white rounded-lg hover:bg-edu-gold transition-colors"
-                        onClick={(e) => handleDownload(e, paper, true)}
+                        className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors"
+                        onClick={(e) => handleDownload(e, paper)}
                       >
-                        <Download className="h-4 w-4 mr-2" />
-                        Solution
+                        <FileText className="h-4 w-4 mr-2" />
+                        Download Paper
                       </button>
-                    )}
+                      {paper.has_solution && (
+                        <button 
+                          className="flex items-center justify-center px-4 py-2 bg-edu-orange text-white rounded-lg hover:bg-edu-gold transition-colors"
+                          onClick={(e) => handleDownload(e, paper, true)}
+                        >
+                          <Download className="h-4 w-4 mr-2" />
+                          Solution
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-20">
+                <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No papers found</h3>
+                <p className="text-gray-600 dark:text-gray-400">Try adjusting your filters or search query.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

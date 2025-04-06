@@ -1,82 +1,16 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
 import { Book, Filter, Download, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from '@tanstack/react-query';
+import { fetchStudyMaterials } from '@/utils/queryUtils';
+import { Skeleton } from '@/components/ui/skeleton';
 
-// Mock data for study materials
-const initialMaterials = [
-  {
-    id: 1,
-    title: "Grade 10 Science Notes",
-    subject: "Science",
-    grade: "Grade 10",
-    type: "Notes",
-    downloadCount: 1245,
-    fileSize: "2.4 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  },
-  {
-    id: 2,
-    title: "Engineering Mathematics",
-    subject: "Mathematics",
-    grade: "Engineering",
-    type: "Textbook",
-    downloadCount: 3210,
-    fileSize: "5.8 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  },
-  {
-    id: 3,
-    title: "Grade 11 History Notes",
-    subject: "History",
-    grade: "Grade 11",
-    type: "Notes",
-    downloadCount: 854,
-    fileSize: "1.7 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  },
-  {
-    id: 4,
-    title: "Computer Science Fundamentals",
-    subject: "Computer Science",
-    grade: "Bachelor's",
-    type: "Textbook",
-    downloadCount: 4567,
-    fileSize: "8.2 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  },
-  {
-    id: 5,
-    title: "Grade 9 Mathematics Formulas",
-    subject: "Mathematics",
-    grade: "Grade 9",
-    type: "Formula Sheet",
-    downloadCount: 2198,
-    fileSize: "1.1 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  },
-  {
-    id: 6,
-    title: "Bachelor's Physics Laboratory Manual",
-    subject: "Physics",
-    grade: "Bachelor's",
-    type: "Lab Manual",
-    downloadCount: 1782,
-    fileSize: "3.9 MB",
-    fileType: "PDF",
-    thumbnailUrl: "/placeholder.svg"
-  }
-];
-
+// These are the filter options available
 const categories = [
   "Grade 7", "Grade 8", "Grade 9", "Grade 10", 
   "Grade 11", "Grade 12", "Bachelor's", "Engineering"
@@ -94,28 +28,39 @@ const resourceTypes = [
 const StudyMaterialsPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [materials, setMaterials] = useState(initialMaterials);
   const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedType, setSelectedType] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // React Query for fetching study materials
+  const { data: materials, isLoading, refetch } = useQuery({
+    queryKey: ['study-materials'],
+    queryFn: () => fetchStudyMaterials(),
+  });
+  
+  // Effect to apply filters when they change
+  useEffect(() => {
+    // Since we're filtering client-side in this implementation,
+    // we don't need to call refetch here. In a real app, you would update
+    // the queryKey with filter params and let React Query refetch.
+  }, [selectedGrade, selectedSubject, selectedType, searchQuery]);
+  
+  // Client-side filtering (in production, this would be done in the database query)
+  const filteredMaterials = materials ? materials.filter(material => {
+    const matchesGrade = selectedGrade ? material.grade === selectedGrade : true;
+    const matchesSubject = selectedSubject ? material.subject === selectedSubject : true;
+    const matchesType = selectedType ? material.type === selectedType : true;
+    const matchesSearch = searchQuery 
+      ? material.title.toLowerCase().includes(searchQuery.toLowerCase()) 
+      : true;
 
-  const filterMaterials = () => {
-    return initialMaterials.filter(material => {
-      const matchesGrade = selectedGrade ? material.grade === selectedGrade : true;
-      const matchesSubject = selectedSubject ? material.subject === selectedSubject : true;
-      const matchesType = selectedType ? material.type === selectedType : true;
-      const matchesSearch = searchQuery 
-        ? material.title.toLowerCase().includes(searchQuery.toLowerCase()) 
-        : true;
-
-      return matchesGrade && matchesSubject && matchesType && matchesSearch;
-    });
-  };
-
+    return matchesGrade && matchesSubject && matchesType && matchesSearch;
+  }) : [];
+  
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setMaterials(filterMaterials());
+    // Filtering is done reactively through the filteredMaterials computation
   };
 
   const resetFilters = () => {
@@ -123,7 +68,6 @@ const StudyMaterialsPage = () => {
     setSelectedSubject('');
     setSelectedType('');
     setSearchQuery('');
-    setMaterials(initialMaterials);
   };
   
   const handleCardClick = (materialId: number) => {
@@ -137,13 +81,49 @@ const StudyMaterialsPage = () => {
       description: `${material.title} is being downloaded.`,
     });
     
-    // Simulate download with sample PDF
-    window.open("https://www.africau.edu/images/default/sample.pdf", '_blank');
+    // In a real app, we would call an API to increment the download count
+    // and maybe track the download in analytics
+    
+    // Open the actual file or sample PDF
+    if (material.download_url) {
+      window.open(material.download_url, '_blank');
+    } else {
+      // Fallback for sample
+      window.open("https://www.africau.edu/images/default/sample.pdf", '_blank');
+    }
   };
   
   const handlePreview = (e: React.MouseEvent, materialId: number) => {
     e.stopPropagation(); // Prevent card click when clicking preview
     navigate(`/content/${materialId}`);
+  };
+
+  // Use skeleton loaders while data is loading
+  const renderSkeletons = () => {
+    return Array(6).fill(0).map((_, index) => (
+      <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-start justify-between mb-3">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-6 w-20" />
+            </div>
+            <Skeleton className="h-4 w-16" />
+          </div>
+          
+          <Skeleton className="h-6 w-3/4 mb-4" />
+          
+          <div className="flex items-center mb-4">
+            <Skeleton className="h-4 w-32" />
+          </div>
+          
+          <div className="flex space-x-2">
+            <Skeleton className="h-10 w-28" />
+            <Skeleton className="h-10 w-24" />
+          </div>
+        </div>
+      </div>
+    ));
   };
 
   return (
@@ -164,10 +144,7 @@ const StudyMaterialsPage = () => {
               className="max-w-3xl mx-auto"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onSearch={(query) => {
-                setSearchQuery(query);
-                setMaterials(filterMaterials());
-              }}
+              onSearch={(query) => setSearchQuery(query)}
             />
           </form>
           
@@ -237,54 +214,66 @@ const StudyMaterialsPage = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {materials.map(material => (
-              <div 
-                key={material.id} 
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-                onClick={() => handleCardClick(material.id)}
-              >
-                <div className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-purple/10 text-edu-purple mb-3">
-                        {material.grade}
-                      </span>
-                      <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-blue/10 text-edu-blue mb-3 ml-2">
-                        {material.subject}
+            {isLoading ? (
+              renderSkeletons()
+            ) : filteredMaterials.length > 0 ? (
+              filteredMaterials.map(material => (
+                <div 
+                  key={material.id} 
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                  onClick={() => handleCardClick(material.id)}
+                >
+                  <div className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-purple/10 text-edu-purple mb-3">
+                          {material.grade || material.level || 'All Grades'}
+                        </span>
+                        <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-blue/10 text-edu-blue mb-3 ml-2">
+                          {material.subject || 'General'}
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {material.file_size || material.pages ? `${material.pages || ''} pages` : ''} 
+                        {material.file_type ? material.file_type : 'PDF'}
                       </span>
                     </div>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">{material.fileSize} {material.fileType}</span>
-                  </div>
-                  
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{material.title}</h3>
-                  
-                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    <Book className="h-4 w-4 mr-1" />
-                    <span>{material.type}</span>
-                    <span className="mx-2">•</span>
-                    <Download className="h-4 w-4 mr-1" />
-                    <span>{material.downloadCount.toLocaleString()}</span>
-                  </div>
-                  
-                  <div className="flex space-x-2">
-                    <button 
-                      className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors"
-                      onClick={(e) => handleDownload(e, material)}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </button>
-                    <button 
-                      className="flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                      onClick={(e) => handlePreview(e, material.id)}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Preview
-                    </button>
+                    
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{material.title}</h3>
+                    
+                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      <Book className="h-4 w-4 mr-1" />
+                      <span>{material.type || material.category || 'Study Material'}</span>
+                      <span className="mx-2">•</span>
+                      <Download className="h-4 w-4 mr-1" />
+                      <span>{material.download_count || material.downloads || 0}</span>
+                    </div>
+                    
+                    <div className="flex space-x-2">
+                      <button 
+                        className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors"
+                        onClick={(e) => handleDownload(e, material)}
+                      >
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </button>
+                      <button 
+                        className="flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        onClick={(e) => handlePreview(e, material.id)}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Preview
+                      </button>
+                    </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-20">
+                <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No materials found</h3>
+                <p className="text-gray-600 dark:text-gray-400">Try adjusting your filters or search query.</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
