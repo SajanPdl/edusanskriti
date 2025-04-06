@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -78,12 +79,13 @@ const AdminPanel = () => {
       <AdminHeader />
       
       <div className="flex flex-1 overflow-hidden">
-        {/* Fixed position for AdminSidebar to prevent it from disappearing */}
-        <div className="h-full w-64 shrink-0 bg-indigo-900">
+        {/* Fixed position for AdminSidebar with fixed width to prevent disappearing */}
+        <div className="h-full w-64 flex-shrink-0 bg-indigo-900 overflow-y-auto">
           <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} />
         </div>
         
         <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6">
+          {/* Dashboard content */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
