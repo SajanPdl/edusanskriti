@@ -134,6 +134,7 @@ const StudyMaterialsManager = () => {
         .eq('id', id);
       
       if (error) throw error;
+      return id; // Return the id to indicate successful deletion
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['study_materials'] });
@@ -224,7 +225,9 @@ const StudyMaterialsManager = () => {
   };
   
   const handleDeleteMaterial = () => {
-    deleteMutation.mutate(selectedMaterial.id);
+    if (selectedMaterial?.id) {
+      deleteMutation.mutate(selectedMaterial.id);
+    }
   };
   
   const handleEditClick = (material) => {

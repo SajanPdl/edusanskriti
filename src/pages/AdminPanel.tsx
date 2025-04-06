@@ -79,7 +79,10 @@ const AdminPanel = () => {
       <AdminHeader />
       
       <div className="flex flex-1 overflow-hidden">
-        <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} />
+        {/* Fixed position for AdminSidebar to prevent it from disappearing */}
+        <div className="h-full w-64 shrink-0 bg-indigo-900">
+          <AdminSidebar activeTab={activeTab} setActiveTab={handleTabChange} />
+        </div>
         
         <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6">
           {activeTab === 'dashboard' && (

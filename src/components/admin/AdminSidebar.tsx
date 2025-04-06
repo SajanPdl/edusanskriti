@@ -81,7 +81,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
   };
   
   return (
-    <aside className="w-64 h-full bg-indigo-900 text-white flex flex-col">
+    <aside className="h-full w-full bg-indigo-900 text-white flex flex-col">
       <div className="p-6 border-b border-indigo-800">
         <h2 className="text-xl font-bold">EduSanskriti</h2>
         <p className="text-indigo-300 text-sm">Admin Dashboard</p>
@@ -91,8 +91,8 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
         <div className="flex items-center">
           <Clock className="h-4 w-4 mr-2 text-indigo-300" />
           <div>
-            <p className="text-xs text-indigo-300">4/6/2025</p>
-            <p className="text-sm font-medium">01:23 PM</p>
+            <p className="text-xs text-indigo-300">{new Date().toLocaleDateString()}</p>
+            <p className="text-sm font-medium">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
           </div>
         </div>
       </div>
