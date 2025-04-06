@@ -48,14 +48,14 @@ interface UseSuggestionsProps {
   maxSuggestions?: number;
 }
 
-export const useSearchSuggestions = (query: string, {
+const useSearchSuggestions = ({
   category = 'all',
   minQueryLength = 2,
   maxSuggestions = 5
 }: UseSuggestionsProps = {}) => {
+  const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   
   const getSuggestionsSource = useCallback(() => {
     switch (category) {
@@ -73,7 +73,6 @@ export const useSearchSuggestions = (query: string, {
   
   useEffect(() => {
     if (query.length >= minQueryLength) {
-      setIsLoading(true);
       const source = getSuggestionsSource();
       const filtered = source
         .filter(item => 
@@ -83,7 +82,6 @@ export const useSearchSuggestions = (query: string, {
       
       setSuggestions(filtered);
       setShowSuggestions(filtered.length > 0);
-      setIsLoading(false);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
@@ -100,12 +98,13 @@ export const useSearchSuggestions = (query: string, {
   };
   
   return {
+    query,
+    setQuery,
     suggestions,
     showSuggestions,
     setShowSuggestions,
     clearSuggestions,
-    hideSuggestions,
-    isLoading
+    hideSuggestions
   };
 };
 

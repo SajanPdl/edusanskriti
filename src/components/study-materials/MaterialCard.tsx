@@ -1,11 +1,14 @@
 
-import { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Calendar, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Download, Star, Eye, ChevronDown, ChevronUp } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useToast } from "@/hooks/use-toast";
 import { StudyMaterial } from '@/data/studyMaterialsData';
 import { getSubjectIcon } from '@/utils/studyMaterialsUtils';
-import { Badge } from '@/components/ui/badge';
 
 interface MaterialCardProps {
   material: StudyMaterial;
@@ -15,107 +18,153 @@ interface MaterialCardProps {
   onExpandToggle: (id: number) => void;
 }
 
-const MaterialCard = ({
-  material,
-  hoveredId,
+const MaterialCard: React.FC<MaterialCardProps> = ({ 
+  material, 
+  hoveredId, 
   expandedCardId,
   onHover,
-  onExpandToggle,
-}: MaterialCardProps) => {
+  onExpandToggle
+}) => {
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const isHovered = hoveredId === material.id;
-  const isExpanded = expandedCardId === material.id;
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Navigate to the content view page
-    navigate(`/content/${material.id}`);
+  const handleDownload = (id: number, title: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    toast({
+      title: "Download Started",
+      description: `${title} is being downloaded.`,
+    });
+    
+    console.log(`Downloading material ID: ${id}`);
+    
+    window.open("https://example.com/sample.pdf", '_blank');
   };
 
-  const handleExpandClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent navigation
-    onExpandToggle(material.id);
+  const handlePreview = (id: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/content/${id}`);
   };
 
+  const handleCardClick = (id: number) => {
+    navigate(`/content/${id}`);
+  };
+  
   return (
-    <Card
-      className={`overflow-hidden transition-all duration-300 h-full cursor-pointer ${
-        isHovered ? 'shadow-neon' : 'hover:shadow-md'
-      }`}
-      onMouseEnter={() => onHover(material.id)}
-      onMouseLeave={() => onHover(null)}
-      onClick={handleCardClick}
-    >
-      <div className="flex flex-col h-full">
-        <CardHeader className="pb-2">
-          <div className="flex justify-between items-start">
-            <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg mb-2">
+    <div className="relative">
+      <Card 
+        className={`interactive-card h-full overflow-hidden transition-all ${hoveredId === material.id ? 'shadow-neon' : 'shadow-md'} cursor-pointer`}
+        onMouseEnter={() => onHover(material.id)}
+        onMouseLeave={() => onHover(null)}
+        onClick={() => handleCardClick(material.id)}
+      >
+        <div className="block h-full">
+          <CardHeader className="p-6">
+            <div className="flex items-center justify-between mb-4">
               {getSubjectIcon(material.subject)}
+              <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-edu-purple/10 hover:text-edu-purple transition-colors">
+                {material.category}
+              </Badge>
             </div>
-            <Badge variant="outline">{material.grade} Grade</Badge>
-          </div>
-          <CardTitle className="text-xl hover:text-primary transition-colors">
-            {material.title}
-          </CardTitle>
-          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-            <Badge className="mr-2 bg-edu-purple/20 text-edu-purple">
-              {material.category}
-            </Badge>
-            <div className="flex items-center">
-              <Calendar className="h-4 w-4 mr-1" />
-              <span>{material.updatedAt}</span>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="pb-0">
-          <p className="text-gray-600 dark:text-gray-400 line-clamp-2">
-            {material.description}
-          </p>
-        </CardContent>
-
-        <CardFooter className="mt-auto pt-4">
-          <div className="w-full">
-            <button
-              className="flex items-center justify-between w-full text-sm text-gray-600 dark:text-gray-400 hover:text-edu-purple transition-colors"
-              onClick={handleExpandClick}
-            >
-              <span>
-                {isExpanded ? 'Show less' : 'Show more'}
-              </span>
-              {isExpanded ? (
-                <ChevronUp className="h-4 w-4" />
-              ) : (
-                <ChevronDown className="h-4 w-4" />
-              )}
-            </button>
-
-            {isExpanded && (
-              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <h4 className="font-medium mb-2 text-sm">Topics covered:</h4>
-                <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc pl-5 mb-4">
-                  {material.topics?.slice(0, 3).map((topic, index) => (
-                    <li key={index}>{topic}</li>
-                  ))}
-                  {material.topics && material.topics.length > 3 && (
-                    <li>And more...</li>
-                  )}
-                </ul>
-                <div 
-                  className="flex items-center text-edu-purple hover:text-edu-indigo font-medium transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/content/${material.id}`);
-                  }}
-                >
-                  View Material
-                  <ArrowRight className="ml-1 h-4 w-4" />
+            <h3 className={`text-xl font-semibold mb-2 group-hover:text-edu-purple transition-colors duration-300 ${hoveredId === material.id ? 'text-edu-purple' : ''}`}>
+              {material.title}
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+              {material.description}
+            </p>
+          </CardHeader>
+          
+          <CardFooter className="px-6 pb-6 pt-0">
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <Download 
+                    className="h-4 w-4 mr-1 cursor-pointer hover:text-edu-purple" 
+                    onClick={(e) => handleDownload(material.id, material.title, e)}
+                  />
+                  <span>{material.downloads.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <Star className="h-4 w-4 mr-1 text-yellow-500" />
+                  <span>{material.rating}</span>
                 </div>
               </div>
-            )}
-          </div>
-        </CardFooter>
-      </div>
-    </Card>
+              <Button variant="ghost" size="sm" className="p-0 h-8 w-8" onClick={(e) => handlePreview(material.id, e)}>
+                <Eye className="h-4 w-4 text-edu-purple" />
+              </Button>
+            </div>
+          </CardFooter>
+        </div>
+      </Card>
+      
+      {(material.subject === "Mathematics" || material.subject === "Physics") && (
+        <Collapsible 
+          open={expandedCardId === material.id}
+          onOpenChange={() => onExpandToggle(material.id)}
+          className="mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
+        >
+          <CollapsibleTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="w-full flex items-center justify-between p-3 text-sm"
+            >
+              <span>Preview Key Points & Formulas</span>
+              {expandedCardId === material.id ? (
+                <ChevronUp className="h-4 w-4 text-gray-500" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-gray-500" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="p-4 space-y-4 border-t border-gray-100 dark:border-gray-700">
+            <div>
+              <h4 className="font-medium text-sm mb-2 text-edu-purple">Key Points</h4>
+              <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
+                {material.keyPoints?.map((point, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-edu-purple/70 mt-1.5 mr-2"></span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-sm mb-2 text-edu-blue">Important Formulas</h4>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md space-y-2">
+                {material.importantFormulas?.map((formula, index) => (
+                  <div key={index} className="text-sm text-gray-700 dark:text-gray-300">
+                    {formula}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex justify-between">
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex items-center gap-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDownload(material.id, material.title, e);
+                }}
+              >
+                <Download className="h-3 w-3" />
+                Download
+              </Button>
+              <Button size="sm" className="bg-gradient-to-r from-edu-purple to-edu-blue text-white hover:from-edu-blue hover:to-edu-purple transition-all duration-300 transform hover:scale-105" asChild>
+                <Link to={`/content/${material.id}`}>
+                  View Full Material
+                </Link>
+              </Button>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
+    </div>
   );
 };
 

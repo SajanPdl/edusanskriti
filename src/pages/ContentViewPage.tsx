@@ -7,72 +7,32 @@ import ContentDetailView from '@/components/ContentDetailView';
 import BlogPostView from '@/components/BlogPostView';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { fetchStudyMaterialById } from '@/utils/studyMaterialsDbUtils';
-import { fetchPastPaperById } from '@/utils/pastPapersDbUtils';
-import { fetchBlogPostById } from '@/utils/blogUtils';
-import { useToast } from '@/hooks/use-toast';
+import { studyMaterialsData } from '@/data/studyMaterialsData';
 
 const ContentViewPage = () => {
   const { id, type } = useParams<{ id: string, type?: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [contentType, setContentType] = useState<'blog' | 'material' | 'paper' | null>(null);
-  const [content, setContent] = useState<any>(null);
-  const { toast } = useToast();
   
+  // Determine if this is a blog post or study material
   const isBlogPost = type === 'blog' || window.location.pathname.includes('/blog/');
-  const isPastPaper = type === 'paper' || window.location.pathname.includes('/past-papers/');
   
   useEffect(() => {
-    const fetchContent = async () => {
-      if (!id) {
+    // Verify that the content exists
+    if (id && !isBlogPost) {
+      const contentExists = studyMaterialsData.some(material => material.id === Number(id));
+      if (!contentExists) {
         navigate('/not-found');
-        return;
       }
-      
-      try {
-        setLoading(true);
-        
-        if (isBlogPost) {
-          const blogPost = await fetchBlogPostById(Number(id));
-          if (blogPost) {
-            setContent(blogPost);
-            setContentType('blog');
-          } else {
-            navigate('/not-found');
-          }
-        } else if (isPastPaper) {
-          const pastPaper = await fetchPastPaperById(Number(id));
-          if (pastPaper) {
-            setContent(pastPaper);
-            setContentType('paper');
-          } else {
-            navigate('/not-found');
-          }
-        } else {
-          const material = await fetchStudyMaterialById(Number(id));
-          if (material) {
-            setContent(material);
-            setContentType('material');
-          } else {
-            navigate('/not-found');
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching content:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load content. Please try again later.",
-          variant: "destructive"
-        });
-        navigate('/not-found');
-      } finally {
-        setLoading(false);
-      }
-    };
+    }
     
-    fetchContent();
-  }, [id, isBlogPost, isPastPaper, navigate, toast]);
+    // Simulate loading content
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [id, isBlogPost, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -80,9 +40,9 @@ const ContentViewPage = () => {
       <div className="container mx-auto px-4 pt-24 pb-16">
         <div className="mb-6">
           <Button variant="ghost" size="sm" asChild className="flex items-center text-gray-600 hover:text-edu-purple">
-            <Link to={isBlogPost ? "/blog" : isPastPaper ? "/past-papers" : "/study-materials"}>
+            <Link to={isBlogPost ? "/blog" : "/study-materials"}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to {isBlogPost ? "Blog" : isPastPaper ? "Past Papers" : "Study Materials"}
+              Back to {isBlogPost ? "Blog" : "Study Materials"}
             </Link>
           </Button>
         </div>
@@ -93,11 +53,10 @@ const ContentViewPage = () => {
           </div>
         ) : (
           <>
-            {contentType === 'blog' && content && (
-              <BlogPostView blogPost={content} />
-            )}
-            {(contentType === 'material' || contentType === 'paper') && content && (
-              <ContentDetailView content={content} type={contentType} />
+            {isBlogPost ? (
+              <BlogPostView />
+            ) : (
+              <ContentDetailView />
             )}
           </>
         )}

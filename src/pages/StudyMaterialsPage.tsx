@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useState } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
-import { BookOpen, Filter, Download, Calendar, Award } from 'lucide-react';
+import { Book, Filter, Download, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 
 // Mock data for study materials
@@ -11,137 +12,138 @@ const initialMaterials = [
   {
     id: 1,
     title: "Grade 10 Science Notes",
-    description: "Comprehensive notes for Grade 10 Science covering all key topics.",
-    category: "Science",
-    grade: "Grade 10",
     subject: "Science",
-    fileSize: "2.5 MB",
+    grade: "Grade 10",
+    type: "Notes",
+    downloadCount: 1245,
+    fileSize: "2.4 MB",
     fileType: "PDF",
-    downloadCount: 3256,
     thumbnailUrl: "/placeholder.svg"
   },
   {
     id: 2,
     title: "Engineering Mathematics",
-    description: "Detailed notes on advanced mathematics for engineering students.",
-    category: "Mathematics",
-    grade: "Engineering",
     subject: "Mathematics",
-    fileSize: "3.8 MB",
+    grade: "Engineering",
+    type: "Textbook",
+    downloadCount: 3210,
+    fileSize: "5.8 MB",
     fileType: "PDF",
-    downloadCount: 2890,
     thumbnailUrl: "/placeholder.svg"
   },
   {
     id: 3,
     title: "Grade 11 History Notes",
-    description: "Key historical events and figures for Grade 11 History.",
-    category: "History",
-    grade: "Grade 11",
     subject: "History",
-    fileSize: "1.9 MB",
+    grade: "Grade 11",
+    type: "Notes",
+    downloadCount: 854,
+    fileSize: "1.7 MB",
     fileType: "PDF",
-    downloadCount: 1987,
     thumbnailUrl: "/placeholder.svg"
   },
   {
     id: 4,
     title: "Computer Science Fundamentals",
-    description: "Introduction to basic concepts in computer science.",
-    category: "Computer Science",
-    grade: "Bachelor's",
     subject: "Computer Science",
-    fileSize: "4.2 MB",
+    grade: "Bachelor's",
+    type: "Textbook",
+    downloadCount: 4567,
+    fileSize: "8.2 MB",
     fileType: "PDF",
-    downloadCount: 4123,
     thumbnailUrl: "/placeholder.svg"
   },
   {
     id: 5,
-    title: "Physics Formula Sheet",
-    description: "Essential physics formulas for quick reference.",
-    category: "Physics",
-    grade: "Grade 12",
-    subject: "Physics",
-    fileSize: "1.2 MB",
+    title: "Grade 9 Mathematics Formulas",
+    subject: "Mathematics",
+    grade: "Grade 9",
+    type: "Formula Sheet",
+    downloadCount: 2198,
+    fileSize: "1.1 MB",
     fileType: "PDF",
-    downloadCount: 2567,
     thumbnailUrl: "/placeholder.svg"
   },
   {
     id: 6,
-    title: "Chemistry Lab Manual",
-    description: "Step-by-step guide for chemistry lab experiments.",
-    category: "Chemistry",
-    grade: "Grade 11",
-    subject: "Chemistry",
-    fileSize: "3.1 MB",
+    title: "Bachelor's Physics Laboratory Manual",
+    subject: "Physics",
+    grade: "Bachelor's",
+    type: "Lab Manual",
+    downloadCount: 1782,
+    fileSize: "3.9 MB",
     fileType: "PDF",
-    downloadCount: 1789,
     thumbnailUrl: "/placeholder.svg"
   }
 ];
 
 const categories = [
+  "Grade 7", "Grade 8", "Grade 9", "Grade 10", 
+  "Grade 11", "Grade 12", "Bachelor's", "Engineering"
+];
+
+const subjects = [
   "Mathematics", "Science", "Physics", "Chemistry", "Biology", 
   "History", "Geography", "Computer Science", "Literature"
 ];
 
-const grades = [
-  "Grade 7", "Grade 8", "Grade 9", "Grade 10", 
-  "Grade 11", "Grade 12", "Bachelor's", "Engineering"
+const resourceTypes = [
+  "Notes", "Textbook", "Formula Sheet", "Lab Manual", "Practice Sheets", "Summary"
 ];
 
 const StudyMaterialsPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [materials, setMaterials] = useState(initialMaterials);
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedGrade, setSelectedGrade] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedType, setSelectedType] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   const filterMaterials = () => {
     return initialMaterials.filter(material => {
-      const matchesCategory = selectedCategory ? material.category === selectedCategory : true;
       const matchesGrade = selectedGrade ? material.grade === selectedGrade : true;
+      const matchesSubject = selectedSubject ? material.subject === selectedSubject : true;
+      const matchesType = selectedType ? material.type === selectedType : true;
       const matchesSearch = searchQuery 
-        ? material.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-          material.description.toLowerCase().includes(searchQuery.toLowerCase())
+        ? material.title.toLowerCase().includes(searchQuery.toLowerCase()) 
         : true;
 
-      return matchesCategory && matchesGrade && matchesSearch;
+      return matchesGrade && matchesSubject && matchesType && matchesSearch;
     });
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setMaterials(filterMaterials());
-  };
-
-  const handleApplyFilters = () => {
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
     setMaterials(filterMaterials());
   };
 
   const resetFilters = () => {
-    setSelectedCategory('');
     setSelectedGrade('');
+    setSelectedSubject('');
+    setSelectedType('');
     setSearchQuery('');
     setMaterials(initialMaterials);
   };
-
-  const handleMaterialClick = (materialId: number) => {
+  
+  const handleCardClick = (materialId: number) => {
     navigate(`/content/${materialId}`);
   };
-
+  
   const handleDownload = (e: React.MouseEvent, material: any) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent navigation when clicking download
     toast({
-      title: `Download Started`,
+      title: "Download Started",
       description: `${material.title} is being downloaded.`,
     });
     
-    // Simulating download with example URL
-    window.open("https://example.com/sample.pdf", '_blank');
+    // Simulate download with sample PDF
+    window.open("https://www.africau.edu/images/default/sample.pdf", '_blank');
+  };
+  
+  const handlePreview = (e: React.MouseEvent, materialId: number) => {
+    e.stopPropagation(); // Prevent card click when clicking preview
+    navigate(`/content/${materialId}`);
   };
 
   return (
@@ -152,20 +154,22 @@ const StudyMaterialsPage = () => {
         <div className="container mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold text-center mb-6 gradient-text">Study Materials</h1>
           <p className="text-center text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto">
-            Access a wide range of study materials to help you excel in your studies. 
-            Filter by category or grade level to find the right materials for your needs.
+            Access comprehensive study materials, notes, and resources to enhance your learning experience.
+            Filter by grade, subject, or material type to find exactly what you need.
           </p>
           
-          <div className="mb-10">
+          <form onSubmit={handleSearch} className="mb-10">
             <SearchBar 
               placeholder="Search study materials..." 
               className="max-w-3xl mx-auto"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onSearch={handleSearch}
-              category="materials"
+              onSearch={(query) => {
+                setSearchQuery(query);
+                setMaterials(filterMaterials());
+              }}
             />
-          </div>
+          </form>
           
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-10">
             <div className="flex items-center mb-4">
@@ -179,21 +183,7 @@ const StudyMaterialsPage = () => {
               </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
-                <select 
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-edu-purple focus:ring focus:ring-edu-purple/20 bg-white dark:bg-gray-700 dark:text-white"
-                >
-                  <option value="">All Categories</option>
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
-              </div>
-              
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Grade/Level</label>
                 <select 
@@ -202,15 +192,43 @@ const StudyMaterialsPage = () => {
                   className="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-edu-purple focus:ring focus:ring-edu-purple/20 bg-white dark:bg-gray-700 dark:text-white"
                 >
                   <option value="">All Grades</option>
-                  {grades.map(grade => (
-                    <option key={grade} value={grade}>{grade}</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Subject</label>
+                <select 
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  className="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-edu-purple focus:ring focus:ring-edu-purple/20 bg-white dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">All Subjects</option>
+                  {subjects.map(subject => (
+                    <option key={subject} value={subject}>{subject}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Resource Type</label>
+                <select 
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="w-full border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:border-edu-purple focus:ring focus:ring-edu-purple/20 bg-white dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">All Types</option>
+                  {resourceTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
                   ))}
                 </select>
               </div>
             </div>
             
             <button 
-              onClick={handleApplyFilters}
+              onClick={handleSearch}
               className="mt-6 btn-primary w-full sm:w-auto"
               type="button"
             >
@@ -223,21 +241,16 @@ const StudyMaterialsPage = () => {
               <div 
                 key={material.id} 
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-                onClick={() => handleMaterialClick(material.id)}
+                onClick={() => handleCardClick(material.id)}
               >
-                <img 
-                  src={material.thumbnailUrl} 
-                  alt={material.title} 
-                  className="w-full h-48 object-cover" 
-                />
                 <div className="p-6">
                   <div className="flex items-start justify-between">
                     <div>
                       <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-purple/10 text-edu-purple mb-3">
-                        {material.category}
+                        {material.grade}
                       </span>
                       <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-edu-blue/10 text-edu-blue mb-3 ml-2">
-                        {material.grade}
+                        {material.subject}
                       </span>
                     </div>
                     <span className="text-sm text-gray-500 dark:text-gray-400">{material.fileSize} {material.fileType}</span>
@@ -245,23 +258,30 @@ const StudyMaterialsPage = () => {
                   
                   <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">{material.title}</h3>
                   
-                  <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{material.description}</p>
-                  
                   <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>Uploaded on: Unknown</span>
+                    <Book className="h-4 w-4 mr-1" />
+                    <span>{material.type}</span>
                     <span className="mx-2">•</span>
-                    <Award className="h-4 w-4 mr-1" />
-                    <span>{material.subject}</span>
+                    <Download className="h-4 w-4 mr-1" />
+                    <span>{material.downloadCount.toLocaleString()}</span>
                   </div>
                   
-                  <button 
-                    className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors"
-                    onClick={(e) => handleDownload(e, material)}
-                  >
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    View Material
-                  </button>
+                  <div className="flex space-x-2">
+                    <button 
+                      className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors"
+                      onClick={(e) => handleDownload(e, material)}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </button>
+                    <button 
+                      className="flex items-center justify-center px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      onClick={(e) => handlePreview(e, material.id)}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Preview
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

@@ -12,10 +12,7 @@ import {
   GraduationCap,
   ChevronRight,
   User,
-  LogOut,
-  PieChart,
-  HelpCircle,
-  MessageSquare
+  LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -79,22 +76,6 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
       id: 'users'
     },
     {
-      name: 'Analytics',
-      icon: PieChart,
-      id: 'analytics'
-    },
-    {
-      name: 'Messages',
-      icon: MessageSquare,
-      id: 'messages',
-      badge: 4
-    },
-    {
-      name: 'Help & Support',
-      icon: HelpCircle,
-      id: 'help'
-    },
-    {
       name: 'Settings',
       icon: Settings,
       id: 'settings'
@@ -110,11 +91,6 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
   
   return (
     <aside className="w-64 h-full bg-gray-900 text-white flex flex-col">
-      <div className="p-6 border-b border-gray-800">
-        <h2 className="text-xl font-bold text-white font-playfair">Admin Panel</h2>
-        <p className="text-xs text-gray-400 mt-1">Manage your educational content</p>
-      </div>
-      
       <div className="flex-1 overflow-y-auto py-6 px-3">
         <nav className="space-y-1">
           {sidebarItems.map((item) => {
@@ -176,11 +152,6 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
               >
                 <item.icon className="h-5 w-5 mr-3" />
                 <span>{item.name}</span>
-                {item.badge && (
-                  <span className="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                    {item.badge}
-                  </span>
-                )}
               </Button>
             );
           })}
@@ -189,8 +160,8 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
       
       <div className="p-4 border-t border-gray-800">
         <div className="flex items-center">
-          <div className="w-10 h-10 rounded-full bg-edu-purple/20 flex items-center justify-center mr-3">
-            <User className="h-5 w-5 text-edu-purple" />
+          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center mr-3">
+            <User className="h-4 w-4 text-gray-300" />
           </div>
           <div>
             <p className="text-sm font-medium">Admin User</p>
