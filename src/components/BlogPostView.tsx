@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -422,7 +421,11 @@ const blogPosts = [
   }
 ];
 
-const BlogPostView = () => {
+interface BlogPostViewProps {
+  blogPost?: any; // Optional prop to pass blog post data directly
+}
+
+const BlogPostView: React.FC<BlogPostViewProps> = ({ blogPost: passedBlogPost }) => {
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -434,27 +437,41 @@ const BlogPostView = () => {
     // Simulate loading from an API
     setLoading(true);
     
-    // Find the post with the matching ID
-    const postId = parseInt(id || '1');
-    const foundPost = blogPosts.find(p => p.id === postId);
-    
-    if (foundPost) {
-      setPost(foundPost);
+    // If a blog post was passed directly, use it
+    if (passedBlogPost) {
+      setPost(passedBlogPost);
       
       // Get related posts
       const related = blogPosts.filter(p => 
-        foundPost.relatedPosts.includes(p.id)
+        passedBlogPost.relatedPosts && passedBlogPost.relatedPosts.includes(p.id)
       );
       setRelatedPosts(related);
       
-      // Simulate a delay for the API call
-      setTimeout(() => {
-        setLoading(false);
-      }, 300);
-    } else {
+      // Skip the delay if blog post is passed directly
       setLoading(false);
+    } else {
+      // Find the post with the matching ID
+      const postId = parseInt(id || '1');
+      const foundPost = blogPosts.find(p => p.id === postId);
+      
+      if (foundPost) {
+        setPost(foundPost);
+        
+        // Get related posts
+        const related = blogPosts.filter(p => 
+          foundPost.relatedPosts && foundPost.relatedPosts.includes(p.id)
+        );
+        setRelatedPosts(related);
+        
+        // Simulate a delay for the API call
+        setTimeout(() => {
+          setLoading(false);
+        }, 300);
+      } else {
+        setLoading(false);
+      }
     }
-  }, [id]);
+  }, [id, passedBlogPost]);
 
   const handleLike = () => {
     setLiked(!liked);
