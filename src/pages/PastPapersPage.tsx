@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -46,7 +46,7 @@ const PastPapersPage = () => {
     const matchesSubject = selectedSubject ? paper.subject === selectedSubject : true;
     const matchesYear = selectedYear ? paper.year === parseInt(selectedYear) : true;
     const matchesDifficulty = selectedDifficulty ? paper.difficulty === selectedDifficulty : true;
-    const matchesSolution = onlySolutions ? paper.has_solution === true : true;
+    const matchesSolution = onlySolutions ? (paper as any).has_solution === true : true; // Using type assertion for optional property
     const matchesSearch = searchQuery 
       ? paper.title.toLowerCase().includes(searchQuery.toLowerCase()) 
       : true;
@@ -259,7 +259,7 @@ const PastPapersPage = () => {
                         </span>
                       </div>
                       <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {paper.file_size} {paper.file_type || 'PDF'}
+                        {(paper as any).file_size || ''} {(paper as any).file_type || 'PDF'}
                       </span>
                     </div>
                     
@@ -284,7 +284,7 @@ const PastPapersPage = () => {
                         <FileText className="h-4 w-4 mr-2" />
                         Download Paper
                       </button>
-                      {paper.has_solution && (
+                      {(paper as any).has_solution && (
                         <button 
                           className="flex items-center justify-center px-4 py-2 bg-edu-orange text-white rounded-lg hover:bg-edu-gold transition-colors"
                           onClick={(e) => handleDownload(e, paper, true)}

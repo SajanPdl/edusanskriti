@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SearchBar from "@/components/SearchBar";
@@ -39,18 +38,11 @@ const StudyMaterialsPage = () => {
     queryFn: () => fetchStudyMaterials(),
   });
   
-  // Effect to apply filters when they change
-  useEffect(() => {
-    // Since we're filtering client-side in this implementation,
-    // we don't need to call refetch here. In a real app, you would update
-    // the queryKey with filter params and let React Query refetch.
-  }, [selectedGrade, selectedSubject, selectedType, searchQuery]);
-  
   // Client-side filtering (in production, this would be done in the database query)
   const filteredMaterials = materials ? materials.filter(material => {
     const matchesGrade = selectedGrade ? material.grade === selectedGrade : true;
     const matchesSubject = selectedSubject ? material.subject === selectedSubject : true;
-    const matchesType = selectedType ? material.type === selectedType : true;
+    const matchesType = selectedType ? (material as any).type === selectedType || material.category === selectedType : true;
     const matchesSearch = searchQuery 
       ? material.title.toLowerCase().includes(searchQuery.toLowerCase()) 
       : true;
@@ -234,8 +226,8 @@ const StudyMaterialsPage = () => {
                         </span>
                       </div>
                       <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {material.file_size || material.pages ? `${material.pages || ''} pages` : ''} 
-                        {material.file_type ? material.file_type : 'PDF'}
+                        {(material as any).file_size || material.pages ? `${material.pages || ''} pages` : ''} 
+                        {(material as any).file_type ? (material as any).file_type : 'PDF'}
                       </span>
                     </div>
                     
@@ -243,10 +235,10 @@ const StudyMaterialsPage = () => {
                     
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
                       <Book className="h-4 w-4 mr-1" />
-                      <span>{material.type || material.category || 'Study Material'}</span>
+                      <span>{(material as any).type || material.category || 'Study Material'}</span>
                       <span className="mx-2">•</span>
                       <Download className="h-4 w-4 mr-1" />
-                      <span>{material.download_count || material.downloads || 0}</span>
+                      <span>{(material as any).download_count || material.downloads || 0}</span>
                     </div>
                     
                     <div className="flex space-x-2">

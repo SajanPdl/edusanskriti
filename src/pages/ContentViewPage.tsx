@@ -1,14 +1,15 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ContentDetailView from '@/components/ContentDetailView';
 import BlogPostView from '@/components/BlogPostView';
+import StudyMaterialView from '@/components/StudyMaterialView';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { fetchStudyMaterial, fetchPastPaper } from '@/utils/queryUtils';
 
 const ContentViewPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,24 +26,14 @@ const ContentViewPage = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: [isPastPaper ? 'past_paper' : isStudyMaterial ? 'study_material' : 'blog_post', id],
     queryFn: async () => {
+      if (!id) return null;
+      
       if (isPastPaper) {
-        const { data, error } = await supabase
-          .from('past_papers')
-          .select('*')
-          .eq('id', id)
-          .single();
-          
-        if (error) throw error;
+        const data = await fetchPastPaper(id);
         setContentTitle(data.title);
         return data;
       } else if (isStudyMaterial) {
-        const { data, error } = await supabase
-          .from('study_materials')
-          .select('*')
-          .eq('id', id)
-          .single();
-          
-        if (error) throw error;
+        const data = await fetchStudyMaterial(id);
         setContentTitle(data.title);
         return data;
       }
@@ -52,14 +43,6 @@ const ContentViewPage = () => {
     },
     enabled: !!id && (isPastPaper || isStudyMaterial),
   });
-
-  useEffect(() => {
-    // If it's a blog post and we don't have a content query running,
-    // verify the content exists in static data or redirect
-    if (isBlogPost || (!isPastPaper && !isStudyMaterial)) {
-      // For blog posts, we'll rely on the BlogPostView component to handle its own data
-    }
-  }, [id, isBlogPost, isPastPaper, isStudyMaterial, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

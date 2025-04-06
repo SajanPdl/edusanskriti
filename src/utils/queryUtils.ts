@@ -6,7 +6,7 @@ export const fetchStudyMaterial = async (id: string) => {
   const { data, error } = await supabase
     .from('study_materials')
     .select('*')
-    .eq('id', id)
+    .eq('id', parseInt(id, 10))
     .single();
     
   if (error) throw error;
@@ -49,7 +49,7 @@ export const fetchPastPaper = async (id: string) => {
   const { data, error } = await supabase
     .from('past_papers')
     .select('*')
-    .eq('id', id)
+    .eq('id', parseInt(id, 10))
     .single();
     
   if (error) throw error;
