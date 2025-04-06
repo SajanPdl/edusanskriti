@@ -12,7 +12,10 @@ import {
   GraduationCap,
   ChevronRight,
   User,
-  LogOut
+  LogOut,
+  BarChart2,
+  MessageSquare,
+  Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -34,46 +37,34 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
       id: 'dashboard'
     },
     {
-      name: 'Content',
+      name: 'Study Materials',
+      icon: BookText,
+      id: 'materials'
+    },
+    {
+      name: 'Past Papers',
       icon: FileText,
-      id: 'content',
-      subItems: [
-        {
-          name: 'Study Materials',
-          id: 'materials',
-          icon: BookText
-        },
-        {
-          name: 'Past Papers',
-          id: 'papers',
-          icon: FileText
-        },
-        {
-          name: 'Blog Posts',
-          id: 'blogs',
-          icon: FileText
-        },
-        {
-          name: 'Advertisements',
-          id: 'ads',
-          icon: Bell
-        }
-      ]
-    },
-    {
-      name: 'Categories',
-      icon: Tag,
-      id: 'categories'
-    },
-    {
-      name: 'Grades',
-      icon: GraduationCap,
-      id: 'grades'
+      id: 'papers'
     },
     {
       name: 'Users',
       icon: Users,
       id: 'users'
+    },
+    {
+      name: 'Queries',
+      icon: MessageSquare,
+      id: 'queries'
+    },
+    {
+      name: 'Advertisement',
+      icon: Bell,
+      id: 'ads'
+    },
+    {
+      name: 'Analytics',
+      icon: BarChart2,
+      id: 'analytics'
     },
     {
       name: 'Settings',
@@ -90,92 +81,59 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
   };
   
   return (
-    <aside className="w-64 h-full bg-gray-900 text-white flex flex-col">
+    <aside className="w-64 h-full bg-indigo-900 text-white flex flex-col">
+      <div className="p-6 border-b border-indigo-800">
+        <h2 className="text-xl font-bold">EduSanskriti</h2>
+        <p className="text-indigo-300 text-sm">Admin Dashboard</p>
+      </div>
+      
+      <div className="p-4 border-b border-indigo-800">
+        <div className="flex items-center">
+          <Clock className="h-4 w-4 mr-2 text-indigo-300" />
+          <div>
+            <p className="text-xs text-indigo-300">4/6/2025</p>
+            <p className="text-sm font-medium">01:23 PM</p>
+          </div>
+        </div>
+      </div>
+      
       <div className="flex-1 overflow-y-auto py-6 px-3">
         <nav className="space-y-1">
-          {sidebarItems.map((item) => {
-            if (item.subItems) {
-              return (
-                <Collapsible 
-                  key={item.id}
-                  open={contentOpen}
-                  onOpenChange={setContentOpen}
-                  className="w-full"
-                >
-                  <CollapsibleTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      className={cn(
-                        "w-full justify-between text-gray-300 hover:text-white hover:bg-gray-800",
-                        (activeTab === 'materials' || activeTab === 'papers' || activeTab === 'blogs' || activeTab === 'ads') && "bg-gray-800 text-white"
-                      )}
-                    >
-                      <div className="flex items-center">
-                        <item.icon className="h-5 w-5 mr-3" />
-                        <span>{item.name}</span>
-                      </div>
-                      <ChevronRight className={cn(
-                        "h-4 w-4 transition-transform",
-                        contentOpen && "rotate-90"
-                      )} />
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="pl-9 space-y-1 mt-1">
-                    {item.subItems.map((subItem) => (
-                      <Button
-                        key={subItem.id}
-                        variant="ghost"
-                        className={cn(
-                          "w-full justify-start text-gray-300 hover:text-white hover:bg-gray-800",
-                          activeTab === subItem.id && "bg-gray-800 text-white"
-                        )}
-                        onClick={() => setActiveTab(subItem.id)}
-                      >
-                        <subItem.icon className="h-4 w-4 mr-2" />
-                        <span>{subItem.name}</span>
-                      </Button>
-                    ))}
-                  </CollapsibleContent>
-                </Collapsible>
-              );
-            }
-            
-            return (
-              <Button
-                key={item.id}
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start text-gray-300 hover:text-white hover:bg-gray-800",
-                  activeTab === item.id && "bg-gray-800 text-white"
-                )}
-                onClick={() => setActiveTab(item.id)}
-              >
-                <item.icon className="h-5 w-5 mr-3" />
-                <span>{item.name}</span>
-              </Button>
-            );
-          })}
+          {sidebarItems.map((item) => (
+            <Button
+              key={item.id}
+              variant="ghost"
+              className={cn(
+                "w-full justify-start text-indigo-100 hover:text-white hover:bg-indigo-800",
+                activeTab === item.id && "bg-indigo-700 text-white"
+              )}
+              onClick={() => setActiveTab(item.id)}
+            >
+              <item.icon className="h-5 w-5 mr-3" />
+              <span>{item.name}</span>
+            </Button>
+          ))}
         </nav>
       </div>
       
-      <div className="p-4 border-t border-gray-800">
-        <div className="flex items-center">
-          <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center mr-3">
-            <User className="h-4 w-4 text-gray-300" />
+      <div className="p-4 border-t border-indigo-800">
+        <div className="flex items-center p-2 rounded-md bg-indigo-800">
+          <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center mr-3">
+            <User className="h-4 w-4 text-white" />
           </div>
           <div>
             <p className="text-sm font-medium">Admin User</p>
-            <button 
-              className="text-xs text-gray-400 hover:text-gray-300"
-              onClick={handleLogout}
-            >
-              <span className="flex items-center">
-                <LogOut className="h-3 w-3 mr-1" />
-                Logout
-              </span>
-            </button>
+            <p className="text-xs text-indigo-300">admin@edusanskriti.com</p>
           </div>
         </div>
+        <Button 
+          variant="ghost" 
+          className="w-full mt-2 justify-start text-red-300 hover:text-red-200 hover:bg-indigo-800"
+          onClick={handleLogout}
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Logout
+        </Button>
       </div>
     </aside>
   );

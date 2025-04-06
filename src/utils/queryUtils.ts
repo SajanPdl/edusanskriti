@@ -97,3 +97,55 @@ export const fetchPastPapers = async (options: {
   if (error) throw error;
   return data;
 };
+
+// Admin dashboard statistics fetching
+export const fetchDashboardStats = async () => {
+  // This is a placeholder for fetching dashboard statistics
+  // In a real application, you would fetch this data from your backend
+  
+  const { data: websiteStats, error: statsError } = await supabase
+    .from('website_stats')
+    .select('*')
+    .order('recorded_at', { ascending: false })
+    .limit(7);
+  
+  if (statsError) throw statsError;
+  
+  return {
+    totalUsers: 24367,
+    totalDownloads: 532891,
+    totalStudyMaterials: 12845,
+    openQueries: 124,
+    analytics: websiteStats || [],
+    userGrowth: '+12%',
+    downloadGrowth: '+8%',
+    materialsGrowth: '+15%',
+    queriesGrowth: '+4%'
+  };
+};
+
+// Recent content fetching
+export const fetchRecentUploads = async (limit = 5) => {
+  const { data: studyMaterials, error: materialsError } = await supabase
+    .from('study_materials')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  
+  if (materialsError) throw materialsError;
+  
+  return studyMaterials || [];
+};
+
+// Recent queries fetching
+export const fetchRecentQueries = async (limit = 5) => {
+  const { data: queries, error: queriesError } = await supabase
+    .from('user_queries')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  
+  if (queriesError) throw queriesError;
+  
+  return queries || [];
+};
