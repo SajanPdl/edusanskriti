@@ -17,15 +17,49 @@ import {
   Trash, 
   Filter, 
   ArrowUpDown, 
-  Download 
+  Download,
+  Eye,
+  Calendar,
+  Tag
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchStudyMaterials } from '@/utils/queryUtils';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const StudyMaterialsManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedSubject, setSelectedSubject] = useState('All');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    content: '',
+    subject: '',
+    category: '',
+    author: '',
+    tags: '',
+    grade: '',
+    file: null
+  });
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data: studyMaterials, isLoading, isError } = useQuery({
     queryKey: ['study_materials', { category: selectedCategory, subject: selectedSubject, search: searchTerm }],
@@ -36,8 +70,202 @@ const StudyMaterialsManager = () => {
     })
   });
   
+  const createMutation = useMutation({
+    mutationFn: async (newMaterial) => {
+      const { data, error } = await supabase
+        .from('study_materials')
+        .insert([newMaterial])
+        .select();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['study_materials'] });
+      toast({
+        title: "Success",
+        description: "Study material created successfully.",
+      });
+      setIsAddDialogOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create study material.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const updateMutation = useMutation({
+    mutationFn: async (updatedMaterial) => {
+      const { data, error } = await supabase
+        .from('study_materials')
+        .update(updatedMaterial)
+        .eq('id', selectedMaterial.id)
+        .select();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['study_materials'] });
+      toast({
+        title: "Success",
+        description: "Study material updated successfully.",
+      });
+      setIsEditDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update study material.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const { error } = await supabase
+        .from('study_materials')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['study_materials'] });
+      toast({
+        title: "Success",
+        description: "Study material deleted successfully.",
+      });
+      setIsDeleteDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete study material.",
+        variant: "destructive",
+      });
+    }
+  });
+  
   const categories = ['All', 'Notes', 'Worksheets', 'Practice Tests', 'Guides'];
   const subjects = ['All', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography'];
+  const grades = ['Grade 10', 'Grade 11', 'Grade 12', "Bachelor's"];
+  
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSelectChange = (name) => (value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prev => ({ ...prev, file: e.target.files[0] }));
+    }
+  };
+  
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      content: '',
+      subject: '',
+      category: '',
+      author: '',
+      tags: '',
+      grade: '',
+      file: null
+    });
+  };
+  
+  const handleAddMaterial = () => {
+    // In a real application, you would upload the file to storage
+    // and get a URL back to store in the database
+    const newMaterial = {
+      title: formData.title,
+      description: formData.description,
+      content: formData.content,
+      subject: formData.subject,
+      category: formData.category,
+      author: formData.author,
+      tags: formData.tags.split(',').map(tag => tag.trim()),
+      grade: formData.grade,
+      date: new Date().toISOString().split('T')[0],
+      downloads: 0,
+      is_featured: false,
+      download_url: formData.file ? URL.createObjectURL(formData.file) : null,
+      image_url: null
+    };
+    
+    createMutation.mutate(newMaterial);
+  };
+  
+  const handleEditMaterial = () => {
+    const updatedMaterial = {
+      title: formData.title,
+      description: formData.description,
+      content: formData.content,
+      subject: formData.subject,
+      category: formData.category,
+      author: formData.author,
+      tags: formData.tags.split(',').map(tag => tag.trim()),
+      grade: formData.grade,
+      updated_at: new Date().toISOString()
+    };
+    
+    updateMutation.mutate(updatedMaterial);
+  };
+  
+  const handleDeleteMaterial = () => {
+    deleteMutation.mutate(selectedMaterial.id);
+  };
+  
+  const handleEditClick = (material) => {
+    setSelectedMaterial(material);
+    setFormData({
+      title: material.title,
+      description: material.description || '',
+      content: material.content || '',
+      subject: material.subject,
+      category: material.category,
+      author: material.author,
+      tags: material.tags ? material.tags.join(', ') : '',
+      grade: material.grade || '',
+      file: null
+    });
+    setIsEditDialogOpen(true);
+  };
+  
+  const handleViewClick = (material) => {
+    setSelectedMaterial(material);
+    setIsViewDialogOpen(true);
+  };
+  
+  const handleDeleteClick = (material) => {
+    setSelectedMaterial(material);
+    setIsDeleteDialogOpen(true);
+  };
+  
+  const handleDownloadClick = (material) => {
+    // In a real application, you would increment download count
+    // and redirect to the actual download URL
+    toast({
+      title: "Download Started",
+      description: `Downloading ${material.title}`,
+    });
+    
+    // Simulate download link click
+    if (material.download_url) {
+      window.open(material.download_url, '_blank');
+    }
+  };
   
   return (
     <div className="space-y-6">
@@ -85,7 +313,13 @@ const StudyMaterialsManager = () => {
         </div>
         
         {/* Add new button */}
-        <Button className="bg-indigo-600 hover:bg-indigo-700">
+        <Button 
+          className="bg-indigo-600 hover:bg-indigo-700"
+          onClick={() => {
+            resetForm();
+            setIsAddDialogOpen(true);
+          }}
+        >
           <Plus className="h-4 w-4 mr-2" /> Add New Material
         </Button>
       </div>
@@ -125,20 +359,50 @@ const StudyMaterialsManager = () => {
                 {studyMaterials?.length ? (
                   studyMaterials.map((material) => (
                     <TableRow key={material.id}>
-                      <TableCell className="font-medium">{material.title}</TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <BookText className="h-4 w-4 text-gray-400" />
+                          <span className="line-clamp-1">{material.title}</span>
+                        </div>
+                      </TableCell>
                       <TableCell>{material.category}</TableCell>
                       <TableCell>{material.subject}</TableCell>
                       <TableCell>{material.downloads}</TableCell>
-                      <TableCell>{new Date(material.date).toLocaleDateString()}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4 text-gray-400" />
+                          <span>{new Date(material.date).toLocaleDateString()}</span>
+                        </div>
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleViewClick(material)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleDownloadClick(material)}
+                          >
                             <Download className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon">
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            onClick={() => handleEditClick(material)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => handleDeleteClick(material)}
+                          >
                             <Trash className="h-4 w-4" />
                           </Button>
                         </div>
@@ -157,6 +421,384 @@ const StudyMaterialsManager = () => {
           )}
         </CardContent>
       </Card>
+      
+      {/* Add Material Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Add New Study Material</DialogTitle>
+            <DialogDescription>
+              Fill in the details to add a new study material to the database.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="title" className="text-sm font-medium">Title</label>
+              <Input
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="e.g., Advanced Calculus Notes"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="subject" className="text-sm font-medium">Subject</label>
+              <Select 
+                value={formData.subject} 
+                onValueChange={handleSelectChange('subject')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.filter(s => s !== 'All').map(subject => (
+                    <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="category" className="text-sm font-medium">Category</label>
+              <Select 
+                value={formData.category} 
+                onValueChange={handleSelectChange('category')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.filter(c => c !== 'All').map(category => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="grade" className="text-sm font-medium">Grade</label>
+              <Select 
+                value={formData.grade} 
+                onValueChange={handleSelectChange('grade')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Grade" />
+                </SelectTrigger>
+                <SelectContent>
+                  {grades.map(grade => (
+                    <SelectItem key={grade} value={grade}>{grade}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="author" className="text-sm font-medium">Author</label>
+              <Input
+                id="author"
+                name="author"
+                value={formData.author}
+                onChange={handleInputChange}
+                placeholder="e.g., Dr. Jane Smith"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="tags" className="text-sm font-medium">Tags (comma-separated)</label>
+              <Input
+                id="tags"
+                name="tags"
+                value={formData.tags}
+                onChange={handleInputChange}
+                placeholder="e.g., calculus, mathematics, advanced"
+              />
+            </div>
+            
+            <div className="space-y-2 col-span-2">
+              <label htmlFor="description" className="text-sm font-medium">Description</label>
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Brief description of the material"
+                rows={2}
+              />
+            </div>
+            
+            <div className="space-y-2 col-span-2">
+              <label htmlFor="content" className="text-sm font-medium">Content</label>
+              <Textarea
+                id="content"
+                name="content"
+                value={formData.content}
+                onChange={handleInputChange}
+                placeholder="Full content or summary"
+                rows={4}
+              />
+            </div>
+            
+            <div className="space-y-2 col-span-2">
+              <label htmlFor="file" className="text-sm font-medium">Upload PDF</label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="file"
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('file')?.click()}
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  {formData.file ? formData.file.name : 'Choose PDF File'}
+                </Button>
+                {formData.file && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setFormData(prev => ({ ...prev, file: null }))}
+                    className="text-red-500"
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
+            <Button 
+              type="button" 
+              onClick={handleAddMaterial}
+              disabled={!formData.title || !formData.subject || !formData.category}
+            >
+              Add Material
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Edit Material Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Edit Study Material</DialogTitle>
+            <DialogDescription>
+              Update the details of this study material.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+            {/* Same form fields as in Add Dialog */}
+            <div className="space-y-2">
+              <label htmlFor="edit-title" className="text-sm font-medium">Title</label>
+              <Input
+                id="edit-title"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="e.g., Advanced Calculus Notes"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="edit-subject" className="text-sm font-medium">Subject</label>
+              <Select 
+                value={formData.subject} 
+                onValueChange={handleSelectChange('subject')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.filter(s => s !== 'All').map(subject => (
+                    <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="edit-category" className="text-sm font-medium">Category</label>
+              <Select 
+                value={formData.category} 
+                onValueChange={handleSelectChange('category')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.filter(c => c !== 'All').map(category => (
+                    <SelectItem key={category} value={category}>{category}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="edit-grade" className="text-sm font-medium">Grade</label>
+              <Select 
+                value={formData.grade} 
+                onValueChange={handleSelectChange('grade')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Grade" />
+                </SelectTrigger>
+                <SelectContent>
+                  {grades.map(grade => (
+                    <SelectItem key={grade} value={grade}>{grade}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="edit-author" className="text-sm font-medium">Author</label>
+              <Input
+                id="edit-author"
+                name="author"
+                value={formData.author}
+                onChange={handleInputChange}
+                placeholder="e.g., Dr. Jane Smith"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="edit-tags" className="text-sm font-medium">Tags (comma-separated)</label>
+              <Input
+                id="edit-tags"
+                name="tags"
+                value={formData.tags}
+                onChange={handleInputChange}
+                placeholder="e.g., calculus, mathematics, advanced"
+              />
+            </div>
+            
+            <div className="space-y-2 col-span-2">
+              <label htmlFor="edit-description" className="text-sm font-medium">Description</label>
+              <Textarea
+                id="edit-description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Brief description of the material"
+                rows={2}
+              />
+            </div>
+            
+            <div className="space-y-2 col-span-2">
+              <label htmlFor="edit-content" className="text-sm font-medium">Content</label>
+              <Textarea
+                id="edit-content"
+                name="content"
+                value={formData.content}
+                onChange={handleInputChange}
+                placeholder="Full content or summary"
+                rows={4}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+            <Button 
+              type="button" 
+              onClick={handleEditMaterial}
+              disabled={!formData.title || !formData.subject || !formData.category}
+            >
+              Update Material
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* View Material Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{selectedMaterial?.title}</DialogTitle>
+            <DialogDescription>
+              {selectedMaterial?.category} • {selectedMaterial?.subject}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="flex items-center gap-2">
+              <Tag className="h-4 w-4 text-gray-500" />
+              <span className="text-sm text-gray-500">
+                {selectedMaterial?.tags?.join(', ') || 'No tags'}
+              </span>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Description</h4>
+              <p className="text-sm">{selectedMaterial?.description}</p>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Content Preview</h4>
+              <div className="bg-gray-50 p-4 rounded-md max-h-[200px] overflow-y-auto">
+                <p className="text-sm whitespace-pre-line">{selectedMaterial?.content}</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium">Author:</span> {selectedMaterial?.author}
+              </div>
+              <div>
+                <span className="font-medium">Downloads:</span> {selectedMaterial?.downloads}
+              </div>
+              <div>
+                <span className="font-medium">Date Added:</span> {selectedMaterial?.date && new Date(selectedMaterial.date).toLocaleDateString()}
+              </div>
+              <div>
+                <span className="font-medium">Grade:</span> {selectedMaterial?.grade || 'Not specified'}
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>Close</Button>
+            <Button onClick={() => handleDownloadClick(selectedMaterial)}>
+              <Download className="h-4 w-4 mr-2" /> Download
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete "{selectedMaterial?.title}"? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteMaterial}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
