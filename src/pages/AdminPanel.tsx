@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -35,7 +34,7 @@ const AdminPanel = () => {
   const pathname = location.pathname;
   
   // Determine active tab based on URL path
-  const getActiveTabFromPath = (path) => {
+  const getActiveTabFromPath = (path: string) => {
     if (path === '/admin' || path === '/admin/') return 'dashboard';
     const segments = path.split('/');
     return segments.length > 2 ? segments[2] : 'dashboard';
@@ -47,7 +46,7 @@ const AdminPanel = () => {
     setActiveTab(getActiveTabFromPath(pathname));
   }, [pathname]);
   
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     if (tab === 'dashboard') {
       navigate('/admin');

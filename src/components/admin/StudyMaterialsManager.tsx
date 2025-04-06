@@ -37,6 +37,38 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
+// Define types for study material
+interface StudyMaterial {
+  id: number;
+  title: string;
+  description: string;
+  content: string;
+  subject: string;
+  category: string;
+  author: string;
+  tags?: string[];
+  grade?: string;
+  date: string;
+  downloads: number;
+  is_featured: boolean;
+  download_url?: string;
+  image_url?: string;
+  updated_at?: string;
+}
+
+// Define type for form data
+interface FormData {
+  title: string;
+  description: string;
+  content: string;
+  subject: string;
+  category: string;
+  author: string;
+  tags: string;
+  grade: string;
+  file: File | null;
+}
+
 const StudyMaterialsManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -45,8 +77,8 @@ const StudyMaterialsManager = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [selectedMaterial, setSelectedMaterial] = useState(null);
-  const [formData, setFormData] = useState({
+  const [selectedMaterial, setSelectedMaterial] = useState<StudyMaterial | null>(null);
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
     content: '',
@@ -71,7 +103,7 @@ const StudyMaterialsManager = () => {
   });
   
   const createMutation = useMutation({
-    mutationFn: async (newMaterial) => {
+    mutationFn: async (newMaterial: Omit<StudyMaterial, 'id'>) => {
       const { data, error } = await supabase
         .from('study_materials')
         .insert([newMaterial])
@@ -99,7 +131,9 @@ const StudyMaterialsManager = () => {
   });
   
   const updateMutation = useMutation({
-    mutationFn: async (updatedMaterial) => {
+    mutationFn: async (updatedMaterial: Partial<StudyMaterial>) => {
+      if (!selectedMaterial) throw new Error("No material selected for update");
+      
       const { data, error } = await supabase
         .from('study_materials')
         .update(updatedMaterial)
@@ -127,7 +161,7 @@ const StudyMaterialsManager = () => {
   });
   
   const deleteMutation = useMutation({
-    mutationFn: async (id) => {
+    mutationFn: async (id: number) => {
       const { error } = await supabase
         .from('study_materials')
         .delete()
@@ -157,18 +191,18 @@ const StudyMaterialsManager = () => {
   const subjects = ['All', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography'];
   const grades = ['Grade 10', 'Grade 11', 'Grade 12', "Bachelor's"];
   
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleSelectChange = (name) => (value) => {
+  const handleSelectChange = (name: string) => (value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, file: e.target.files[0] }));
+      setFormData(prev => ({ ...prev, file: e.target.files![0] }));
     }
   };
   
@@ -189,7 +223,7 @@ const StudyMaterialsManager = () => {
   const handleAddMaterial = () => {
     // In a real application, you would upload the file to storage
     // and get a URL back to store in the database
-    const newMaterial = {
+    const newMaterial: Omit<StudyMaterial, 'id'> = {
       title: formData.title,
       description: formData.description,
       content: formData.content,
@@ -209,7 +243,9 @@ const StudyMaterialsManager = () => {
   };
   
   const handleEditMaterial = () => {
-    const updatedMaterial = {
+    if (!selectedMaterial) return;
+    
+    const updatedMaterial: Partial<StudyMaterial> = {
       title: formData.title,
       description: formData.description,
       content: formData.content,
@@ -230,7 +266,7 @@ const StudyMaterialsManager = () => {
     }
   };
   
-  const handleEditClick = (material) => {
+  const handleEditClick = (material: StudyMaterial) => {
     setSelectedMaterial(material);
     setFormData({
       title: material.title,
@@ -246,17 +282,17 @@ const StudyMaterialsManager = () => {
     setIsEditDialogOpen(true);
   };
   
-  const handleViewClick = (material) => {
+  const handleViewClick = (material: StudyMaterial) => {
     setSelectedMaterial(material);
     setIsViewDialogOpen(true);
   };
   
-  const handleDeleteClick = (material) => {
+  const handleDeleteClick = (material: StudyMaterial) => {
     setSelectedMaterial(material);
     setIsDeleteDialogOpen(true);
   };
   
-  const handleDownloadClick = (material) => {
+  const handleDownloadClick = (material: StudyMaterial) => {
     // In a real application, you would increment download count
     // and redirect to the actual download URL
     toast({
@@ -774,7 +810,7 @@ const StudyMaterialsManager = () => {
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>Close</Button>
-            <Button onClick={() => handleDownloadClick(selectedMaterial)}>
+            <Button onClick={() => handleDownloadClick(selectedMaterial!)}>
               <Download className="h-4 w-4 mr-2" /> Download
             </Button>
           </DialogFooter>
