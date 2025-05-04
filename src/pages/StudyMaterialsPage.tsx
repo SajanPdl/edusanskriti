@@ -5,9 +5,8 @@ import Footer from '@/components/Footer';
 import MaterialCard from '@/components/study-materials/MaterialCard';
 import MaterialsFilter from '@/components/study-materials/MaterialsFilter';
 import { fetchStudyMaterials } from '@/utils/queryUtils';
-import { Tables } from '@/integrations/supabase/types';
-
-type StudyMaterial = Tables<'study_materials'>;
+import { Button } from '@/components/ui/button';
+import { StudyMaterial } from '@/utils/queryUtils';
 
 const StudyMaterialsPage = () => {
   const [materials, setMaterials] = useState<StudyMaterial[]>([]);

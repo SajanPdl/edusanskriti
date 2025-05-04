@@ -3,82 +3,106 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import ContentDetailView from '@/components/ContentDetailView';
+import StudyMaterialView from '@/components/StudyMaterialView';
 import { fetchStudyMaterialById, fetchPastPaperById } from '@/utils/queryUtils';
-import { Tables } from '@/integrations/supabase/types';
-
-// Define the content types
-type ContentType = Tables<'study_materials'> | Tables<'past_papers'>;
+import { StudyMaterial, PastPaper } from '@/utils/queryUtils';
 
 const ContentViewPage = () => {
   const { id } = useParams<{ id: string }>();
+  const [content, setContent] = useState<StudyMaterial | PastPaper | null>(null);
+  const [contentType, setContentType] = useState<'study-material' | 'past-paper' | null>(null);
   const [loading, setLoading] = useState(true);
-  const [content, setContent] = useState<ContentType | null>(null);
-  const [contentType, setContentType] = useState<'study-material' | 'past-paper'>('study-material');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchContent = async () => {
+    const loadContent = async () => {
+      if (!id) {
+        setError("Content ID not found");
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        if (!id) {
-          throw new Error('Content ID is required');
-        }
         
         // Try to fetch as study material first
         try {
-          const data = await fetchStudyMaterialById(id);
-          setContent(data);
-          setContentType('study-material');
-          setError(null);
-        } catch (studyMaterialError) {
-          // If not found as study material, try as past paper
-          try {
-            const data = await fetchPastPaperById(id);
-            setContent(data);
-            setContentType('past-paper');
-            setError(null);
-          } catch (pastPaperError) {
-            throw new Error('Content not found');
+          const studyMaterial = await fetchStudyMaterialById(parseInt(id));
+          if (studyMaterial) {
+            setContent(studyMaterial);
+            setContentType('study-material');
+            setLoading(false);
+            return;
           }
+        } catch (err) {
+          // If not found as study material, try as past paper
+          console.log("Not found as study material, trying as past paper");
         }
+        
+        // Try to fetch as past paper
+        try {
+          const pastPaper = await fetchPastPaperById(parseInt(id));
+          if (pastPaper) {
+            setContent(pastPaper);
+            setContentType('past-paper');
+            setLoading(false);
+            return;
+          }
+        } catch (err) {
+          console.error("Content not found as past paper either:", err);
+          setError("Content not found");
+        }
+        
       } catch (err) {
-        console.error('Error fetching content:', err);
-        setError('Failed to load content. Please try again later.');
-        setContent(null);
+        console.error("Error loading content:", err);
+        setError("Failed to load content");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchContent();
+    
+    loadContent();
   }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex items-center justify-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !content) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow flex flex-col items-center justify-center p-4">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Content Not Found</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">{error || "The content you're looking for doesn't exist or has been removed."}</p>
+          <a href="/" className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+            Back to Home
+          </a>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow pt-20">
-        {loading ? (
-          <div className="container mx-auto px-4 py-10 text-center">
-            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-            <p className="mt-4 text-gray-600">Loading content...</p>
-          </div>
-        ) : error ? (
-          <div className="container mx-auto px-4 py-10 text-center">
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-              <p>{error}</p>
-            </div>
-          </div>
-        ) : content ? (
-          <ContentDetailView 
-            content={content} 
-            contentType={contentType}
-          />
-        ) : (
-          <div className="container mx-auto px-4 py-10 text-center">
-            <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-md">
-              <p>Content not found.</p>
-            </div>
+      <main className="flex-grow container mx-auto px-4 py-12">
+        {contentType === 'study-material' && (
+          <StudyMaterialView material={content as StudyMaterial} />
+        )}
+        {contentType === 'past-paper' && (
+          <div>
+            <h1 className="text-3xl font-bold mb-6">{(content as PastPaper).title}</h1>
+            {/* Add more content as needed */}
           </div>
         )}
       </main>

@@ -1,4 +1,6 @@
+
 import { supabase } from '@/integrations/supabase/client';
+import { Tables } from '@/integrations/supabase/types';
 
 // Dashboard Stats interfaces
 export interface DashboardStats {
@@ -36,6 +38,10 @@ export interface RecentQuery {
   status: string;
   created_at: string;
 }
+
+// Study material and past paper interfaces
+export type StudyMaterial = Tables<'study_materials'>;
+export type PastPaper = Tables<'past_papers'>;
 
 // Fetch dashboard stats
 export const fetchDashboardStats = async (): Promise<DashboardStats> => {
@@ -89,7 +95,7 @@ export const fetchRecentQueries = async (limit: number = 5): Promise<RecentQuery
 };
 
 // Fetch study material by ID
-export const fetchStudyMaterialById = async (id: string) => {
+export const fetchStudyMaterialById = async (id: number) => {
   const { data, error } = await supabase
     .from('study_materials')
     .select('*')
@@ -105,7 +111,7 @@ export const fetchStudyMaterialById = async (id: string) => {
 };
 
 // Fetch past paper by ID
-export const fetchPastPaperById = async (id: string) => {
+export const fetchPastPaperById = async (id: number) => {
   const { data, error } = await supabase
     .from('past_papers')
     .select('*')
@@ -118,4 +124,88 @@ export const fetchPastPaperById = async (id: string) => {
   }
 
   return data;
+};
+
+// New function to fetch study materials with filters
+export const fetchStudyMaterials = async (params?: {
+  grade?: string;
+  subject?: string;
+  category?: string;
+  search?: string;
+}): Promise<StudyMaterial[]> => {
+  try {
+    let query = supabase.from('study_materials').select('*');
+    
+    if (params) {
+      if (params.grade && params.grade !== 'All') {
+        query = query.eq('grade', params.grade);
+      }
+      
+      if (params.subject && params.subject !== 'All') {
+        query = query.eq('subject', params.subject);
+      }
+      
+      if (params.category && params.category !== 'All') {
+        query = query.eq('category', params.category);
+      }
+      
+      if (params.search) {
+        query = query.or(`title.ilike.%${params.search}%,description.ilike.%${params.search}%`);
+      }
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error("Error fetching study materials:", error);
+      throw new Error("Failed to fetch study materials");
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error("Error in fetchStudyMaterials:", error);
+    return [];
+  }
+};
+
+// New function to fetch past papers with filters
+export const fetchPastPapers = async (params?: {
+  grade?: string;
+  subject?: string;
+  year?: number;
+  search?: string;
+}): Promise<PastPaper[]> => {
+  try {
+    let query = supabase.from('past_papers').select('*');
+    
+    if (params) {
+      if (params.grade && params.grade !== 'All') {
+        query = query.eq('grade', params.grade);
+      }
+      
+      if (params.subject && params.subject !== 'All') {
+        query = query.eq('subject', params.subject);
+      }
+      
+      if (params.year) {
+        query = query.eq('year', params.year);
+      }
+      
+      if (params.search) {
+        query = query.or(`title.ilike.%${params.search}%,subject.ilike.%${params.search}%`);
+      }
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+      console.error("Error fetching past papers:", error);
+      throw new Error("Failed to fetch past papers");
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error("Error in fetchPastPapers:", error);
+    return [];
+  }
 };

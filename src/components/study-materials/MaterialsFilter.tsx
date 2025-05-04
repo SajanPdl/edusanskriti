@@ -1,24 +1,33 @@
 
 import React from 'react';
 import { Search } from 'lucide-react';
-import { categories, subjects } from '@/data/studyMaterialsData';
 
 interface MaterialsFilterProps {
-  activeCategory: string;
-  activeSubject: string;
-  searchQuery: string;
-  setActiveCategory: (category: string) => void;
-  setActiveSubject: (subject: string) => void;
-  setSearchQuery: (query: string) => void;
+  options: {
+    grades: string[];
+    subjects: string[];
+    categories: string[];
+  };
+  searchTerm: string;
+  selectedGrade: string;
+  selectedSubject: string;
+  selectedCategory: string;
+  onSearch: (term: string) => void;
+  onGradeChange: (grade: string) => void;
+  onSubjectChange: (subject: string) => void;
+  onCategoryChange: (category: string) => void;
 }
 
 const MaterialsFilter: React.FC<MaterialsFilterProps> = ({
-  activeCategory,
-  activeSubject,
-  searchQuery,
-  setActiveCategory,
-  setActiveSubject,
-  setSearchQuery
+  options,
+  searchTerm,
+  selectedGrade,
+  selectedSubject,
+  selectedCategory,
+  onSearch,
+  onGradeChange,
+  onSubjectChange,
+  onCategoryChange
 }) => {
   return (
     <div className="mb-12">
@@ -29,8 +38,8 @@ const MaterialsFilter: React.FC<MaterialsFilterProps> = ({
             <input
               type="text"
               placeholder="Search materials..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => onSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-all duration-300 hover:shadow-md"
             />
           </div>
@@ -38,22 +47,32 @@ const MaterialsFilter: React.FC<MaterialsFilterProps> = ({
         
         <div className="flex gap-4 flex-wrap justify-center">
           <select
-            value={activeCategory}
-            onChange={(e) => setActiveCategory(e.target.value)}
+            value={selectedGrade}
+            onChange={(e) => onGradeChange(e.target.value)}
             className="px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-all duration-300 hover:shadow-md"
           >
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
+            {options.grades.map(grade => (
+              <option key={grade} value={grade}>{grade}</option>
             ))}
           </select>
           
           <select
-            value={activeSubject}
-            onChange={(e) => setActiveSubject(e.target.value)}
+            value={selectedSubject}
+            onChange={(e) => onSubjectChange(e.target.value)}
             className="px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-all duration-300 hover:shadow-md"
           >
-            {subjects.map(subject => (
+            {options.subjects.map(subject => (
               <option key={subject} value={subject}>{subject}</option>
+            ))}
+          </select>
+          
+          <select
+            value={selectedCategory}
+            onChange={(e) => onCategoryChange(e.target.value)}
+            className="px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-all duration-300 hover:shadow-md"
+          >
+            {options.categories.map(category => (
+              <option key={category} value={category}>{category}</option>
             ))}
           </select>
         </div>
