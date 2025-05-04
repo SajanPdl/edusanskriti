@@ -29,6 +29,13 @@ const MaterialsFilter: React.FC<MaterialsFilterProps> = ({
   onSubjectChange,
   onCategoryChange
 }) => {
+  // Make sure options is properly defined with defaults to prevent the error
+  const safeOptions = {
+    grades: options?.grades || ['All'],
+    subjects: options?.subjects || ['All'],
+    categories: options?.categories || ['All']
+  };
+  
   return (
     <div className="mb-12">
       <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
@@ -51,7 +58,7 @@ const MaterialsFilter: React.FC<MaterialsFilterProps> = ({
             onChange={(e) => onGradeChange(e.target.value)}
             className="px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-all duration-300 hover:shadow-md"
           >
-            {options.grades.map(grade => (
+            {safeOptions.grades.map(grade => (
               <option key={grade} value={grade}>{grade}</option>
             ))}
           </select>
@@ -61,7 +68,7 @@ const MaterialsFilter: React.FC<MaterialsFilterProps> = ({
             onChange={(e) => onSubjectChange(e.target.value)}
             className="px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-all duration-300 hover:shadow-md"
           >
-            {options.subjects.map(subject => (
+            {safeOptions.subjects.map(subject => (
               <option key={subject} value={subject}>{subject}</option>
             ))}
           </select>
@@ -71,7 +78,7 @@ const MaterialsFilter: React.FC<MaterialsFilterProps> = ({
             onChange={(e) => onCategoryChange(e.target.value)}
             className="px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 focus:border-edu-purple dark:focus:border-edu-purple focus:ring-1 focus:ring-edu-purple/20 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 transition-all duration-300 hover:shadow-md"
           >
-            {options.categories.map(category => (
+            {safeOptions.categories.map(category => (
               <option key={category} value={category}>{category}</option>
             ))}
           </select>

@@ -41,7 +41,7 @@ const MaterialCard: React.FC<MaterialCardProps> = ({ material }) => {
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center">
             <Calendar className="h-4 w-4 mr-1" />
-            <span>{new Date(material.date).toLocaleDateString()}</span>
+            <span>{material.date ? new Date(material.date).toLocaleDateString() : 'N/A'}</span>
           </div>
           
           <div className="flex items-center">
