@@ -106,7 +106,7 @@ export const fetchStudyMaterialById = async (id: string | number): Promise<Table
   const { data, error } = await supabase
     .from('study_materials')
     .select('*')
-    .eq('id', id)
+    .eq('id', typeof id === 'string' ? parseInt(id, 10) : id)
     .single();
   
   if (error) {
@@ -122,7 +122,7 @@ export const fetchPastPaperById = async (id: string | number): Promise<Tables<'p
   const { data, error } = await supabase
     .from('past_papers')
     .select('*')
-    .eq('id', id)
+    .eq('id', typeof id === 'string' ? parseInt(id, 10) : id)
     .single();
   
   if (error) {
@@ -131,4 +131,129 @@ export const fetchPastPaperById = async (id: string | number): Promise<Tables<'p
   }
   
   return data;
+};
+
+// Dashboard stats interface
+export interface DashboardStats {
+  totalUsers: number;
+  userGrowth: string;
+  totalDownloads: number;
+  downloadGrowth: string;
+  totalStudyMaterials: number;
+  materialsGrowth: string;
+  openQueries: number;
+  queriesGrowth: string;
+  analytics: {
+    month: string;
+    visits: number;
+    downloads: number;
+    queries: number;
+  }[];
+}
+
+// Fetch dashboard statistics for the admin panel
+export const fetchDashboardStats = async (): Promise<DashboardStats> => {
+  // Get website stats from the database
+  const { data: statsData, error: statsError } = await supabase
+    .from('website_stats')
+    .select('*')
+    .order('recorded_at', { ascending: false })
+    .limit(12);
+  
+  if (statsError) {
+    console.error('Error fetching website stats:', statsError);
+    throw statsError;
+  }
+
+  // Get study materials count
+  const { count: materialsCount, error: materialsError } = await supabase
+    .from('study_materials')
+    .select('*', { count: 'exact', head: true });
+  
+  if (materialsError) {
+    console.error('Error counting study materials:', materialsError);
+    throw materialsError;
+  }
+  
+  // Get open queries count
+  const { count: queriesCount, error: queriesError } = await supabase
+    .from('user_queries')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'Open');
+  
+  if (queriesError) {
+    console.error('Error counting open queries:', queriesError);
+    throw queriesError;
+  }
+
+  // Format the analytics data
+  const analytics = (statsData || []).map(stat => ({
+    month: stat.month,
+    visits: stat.visits || 0,
+    downloads: stat.downloads || 0,
+    queries: stat.queries || 0
+  })).reverse();
+  
+  // Simulate user data and growth percentages (in a real app, this would come from actual data)
+  return {
+    totalUsers: 2458,
+    userGrowth: '12%',
+    totalDownloads: analytics.reduce((sum, item) => sum + item.downloads, 0),
+    downloadGrowth: '8%',
+    totalStudyMaterials: materialsCount || 0,
+    materialsGrowth: '15%',
+    openQueries: queriesCount || 0,
+    queriesGrowth: '4%',
+    analytics
+  };
+};
+
+// Recent upload interface
+export interface RecentUpload {
+  id: number;
+  title: string;
+  category: string;
+  downloads: number;
+  date: string;
+}
+
+// Recent query interface
+export interface RecentQuery {
+  id: number;
+  user_name: string;
+  query_text: string;
+  status: string;
+  created_at: string;
+}
+
+// Fetch recent uploads for the admin dashboard
+export const fetchRecentUploads = async (limit: number = 5): Promise<RecentUpload[]> => {
+  const { data, error } = await supabase
+    .from('study_materials')
+    .select('id, title, category, downloads, date')
+    .order('date', { ascending: false })
+    .limit(limit);
+  
+  if (error) {
+    console.error('Error fetching recent uploads:', error);
+    throw error;
+  }
+  
+  return data || [];
+};
+
+// Fetch recent queries for the admin dashboard
+export const fetchRecentQueries = async (limit: number = 5): Promise<RecentQuery[]> => {
+  const { data, error } = await supabase
+    .from('user_queries')
+    .select('id, user_name, query_text, status, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  
+  if (error) {
+    console.error('Error fetching recent queries:', error);
+    throw error;
+  }
+  
+  return data || [];
 };
