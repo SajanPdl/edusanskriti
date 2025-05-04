@@ -1,139 +1,6 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { Tables } from '@/integrations/supabase/types';
 
-// Define parameters for filtering study materials
-interface StudyMaterialsQueryParams {
-  category?: string;
-  subject?: string;
-  search?: string;
-  limit?: number;
-  featured?: boolean;
-}
-
-// Fetch study materials with optional filtering
-export const fetchStudyMaterials = async (params: StudyMaterialsQueryParams = {}): Promise<Tables<'study_materials'>[]> => {
-  let query = supabase
-    .from('study_materials')
-    .select('*');
-  
-  if (params.category) {
-    query = query.eq('category', params.category);
-  }
-  
-  if (params.subject) {
-    query = query.eq('subject', params.subject);
-  }
-  
-  if (params.search) {
-    query = query.or(`title.ilike.%${params.search}%,description.ilike.%${params.search}%,content.ilike.%${params.search}%`);
-  }
-  
-  if (params.featured) {
-    query = query.eq('is_featured', true);
-  }
-  
-  const { data, error } = await query.order('date', { ascending: false }).limit(params.limit || 50);
-  
-  if (error) {
-    console.error('Error fetching study materials:', error);
-    throw error;
-  }
-  
-  return data || [];
-};
-
-// Define parameters for filtering past papers
-interface PastPapersQueryParams {
-  subject?: string;
-  grade?: string;
-  year?: number;
-  search?: string;
-  limit?: number;
-}
-
-// Fetch past papers with optional filtering
-export const fetchPastPapers = async (params: PastPapersQueryParams = {}): Promise<Tables<'past_papers'>[]> => {
-  let query = supabase
-    .from('past_papers')
-    .select('*');
-  
-  if (params.subject) {
-    query = query.eq('subject', params.subject);
-  }
-  
-  if (params.grade) {
-    query = query.eq('grade', params.grade);
-  }
-  
-  if (params.year) {
-    query = query.eq('year', params.year);
-  }
-  
-  if (params.search) {
-    query = query.or(`title.ilike.%${params.search}%,subject.ilike.%${params.search}%`);
-  }
-  
-  const { data, error } = await query.order('year', { ascending: false }).limit(params.limit || 50);
-  
-  if (error) {
-    console.error('Error fetching past papers:', error);
-    throw error;
-  }
-  
-  return data || [];
-};
-
-// Fetch featured study materials for the homepage
-export const fetchFeaturedMaterials = async (limit: number = 6): Promise<Tables<'study_materials'>[]> => {
-  const { data, error } = await supabase
-    .from('study_materials')
-    .select('*')
-    .eq('is_featured', true)
-    .order('downloads', { ascending: false })
-    .limit(limit);
-  
-  if (error) {
-    console.error('Error fetching featured materials:', error);
-    throw error;
-  }
-  
-  return data || [];
-};
-
-// Fetch a single study material by ID
-export const fetchStudyMaterialById = async (id: string | number): Promise<Tables<'study_materials'>> => {
-  const { data, error } = await supabase
-    .from('study_materials')
-    .select('*')
-    .eq('id', typeof id === 'string' ? parseInt(id, 10) : id)
-    .single();
-  
-  if (error) {
-    console.error(`Error fetching study material with ID ${id}:`, error);
-    throw error;
-  }
-  
-  return data;
-};
-
-// Fetch a single past paper by ID
-export const fetchPastPaperById = async (id: string | number): Promise<Tables<'past_papers'>> => {
-  const { data, error } = await supabase
-    .from('past_papers')
-    .select('*')
-    .eq('id', typeof id === 'string' ? parseInt(id, 10) : id)
-    .single();
-  
-  if (error) {
-    console.error(`Error fetching past paper with ID ${id}:`, error);
-    throw error;
-  }
-  
-  return data;
-};
-
-// Dashboard stats interface
+// Dashboard Stats interfaces
 export interface DashboardStats {
   totalUsers: number;
   userGrowth: string;
@@ -143,117 +10,112 @@ export interface DashboardStats {
   materialsGrowth: string;
   openQueries: number;
   queriesGrowth: string;
-  analytics: {
-    month: string;
-    visits: number;
-    downloads: number;
-    queries: number;
-  }[];
+  analytics: AnalyticsData[];
 }
 
-// Fetch dashboard statistics for the admin panel
-export const fetchDashboardStats = async (): Promise<DashboardStats> => {
-  // Get website stats from the database
-  const { data: statsData, error: statsError } = await supabase
-    .from('website_stats')
-    .select('*')
-    .order('recorded_at', { ascending: false })
-    .limit(12);
-  
-  if (statsError) {
-    console.error('Error fetching website stats:', statsError);
-    throw statsError;
-  }
+interface AnalyticsData {
+  month: string;
+  visits: number;
+  downloads: number;
+  queries: number;
+}
 
-  // Get study materials count
-  const { count: materialsCount, error: materialsError } = await supabase
-    .from('study_materials')
-    .select('*', { count: 'exact', head: true });
-  
-  if (materialsError) {
-    console.error('Error counting study materials:', materialsError);
-    throw materialsError;
-  }
-  
-  // Get open queries count
-  const { count: queriesCount, error: queriesError } = await supabase
-    .from('user_queries')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'Open');
-  
-  if (queriesError) {
-    console.error('Error counting open queries:', queriesError);
-    throw queriesError;
-  }
-
-  // Format the analytics data
-  const analytics = (statsData || []).map(stat => ({
-    month: stat.month,
-    visits: stat.visits || 0,
-    downloads: stat.downloads || 0,
-    queries: stat.queries || 0
-  })).reverse();
-  
-  // Simulate user data and growth percentages (in a real app, this would come from actual data)
-  return {
-    totalUsers: 2458,
-    userGrowth: '12%',
-    totalDownloads: analytics.reduce((sum, item) => sum + item.downloads, 0),
-    downloadGrowth: '8%',
-    totalStudyMaterials: materialsCount || 0,
-    materialsGrowth: '15%',
-    openQueries: queriesCount || 0,
-    queriesGrowth: '4%',
-    analytics
-  };
-};
-
-// Recent upload interface
+// Recent content interfaces
 export interface RecentUpload {
-  id: number;
+  id: string;
   title: string;
   category: string;
   downloads: number;
-  date: string;
+  type: string;
 }
 
-// Recent query interface
 export interface RecentQuery {
-  id: number;
+  id: string;
   user_name: string;
   query_text: string;
   status: string;
   created_at: string;
 }
 
-// Fetch recent uploads for the admin dashboard
-export const fetchRecentUploads = async (limit: number = 5): Promise<RecentUpload[]> => {
-  const { data, error } = await supabase
-    .from('study_materials')
-    .select('id, title, category, downloads, date')
-    .order('date', { ascending: false })
-    .limit(limit);
-  
-  if (error) {
-    console.error('Error fetching recent uploads:', error);
-    throw error;
-  }
-  
-  return data || [];
+// Fetch dashboard stats
+export const fetchDashboardStats = async (): Promise<DashboardStats> => {
+  // This would typically come from your database
+  // For now, we'll return mock data
+  return {
+    totalUsers: 1243,
+    userGrowth: "+12%",
+    totalDownloads: 8975,
+    downloadGrowth: "+8%",
+    totalStudyMaterials: 235,
+    materialsGrowth: "+15%",
+    openQueries: 24,
+    queriesGrowth: "+4%",
+    analytics: [
+      { month: 'Jan', visits: 4000, downloads: 2400, queries: 240 },
+      { month: 'Feb', visits: 3000, downloads: 1398, queries: 210 },
+      { month: 'Mar', visits: 2000, downloads: 9800, queries: 290 },
+      { month: 'Apr', visits: 2780, downloads: 3908, queries: 200 },
+      { month: 'May', visits: 1890, downloads: 4800, queries: 181 },
+      { month: 'Jun', visits: 2390, downloads: 3800, queries: 250 },
+      { month: 'Jul', visits: 3490, downloads: 4300, queries: 210 },
+    ]
+  };
 };
 
-// Fetch recent queries for the admin dashboard
+// Fetch recent uploads
+export const fetchRecentUploads = async (limit: number = 5): Promise<RecentUpload[]> => {
+  // This would typically come from your database
+  // For now, we'll return mock data
+  return [
+    { id: '1', title: 'Mathematics Grade 10 Notes', category: 'Mathematics', downloads: 245, type: 'study_material' },
+    { id: '2', title: 'Physics Exam 2023', category: 'Physics', downloads: 189, type: 'past_paper' },
+    { id: '3', title: 'Chemistry Lab Guide', category: 'Chemistry', downloads: 156, type: 'study_material' },
+    { id: '4', title: 'Biology CBSE Model Paper', category: 'Biology', downloads: 132, type: 'past_paper' },
+    { id: '5', title: 'Computer Science Algorithms', category: 'Computer Science', downloads: 98, type: 'study_material' },
+  ];
+};
+
+// Fetch recent queries
 export const fetchRecentQueries = async (limit: number = 5): Promise<RecentQuery[]> => {
+  // This would typically come from your database
+  // For now, we'll return mock data
+  return [
+    { id: '1', user_name: 'John Doe', query_text: 'When will the Grade 12 Mathematics paper be available?', status: 'Open', created_at: '2023-05-01' },
+    { id: '2', user_name: 'Jane Smith', query_text: 'I cannot download Physics notes, getting an error.', status: 'Closed', created_at: '2023-04-28' },
+    { id: '3', user_name: 'Alex Johnson', query_text: 'Are there any more Chemistry revision materials?', status: 'Open', created_at: '2023-04-27' },
+    { id: '4', user_name: 'Sam Wilson', query_text: 'The Biology diagram is missing on page 5.', status: 'Open', created_at: '2023-04-25' },
+    { id: '5', user_name: 'Emily Davis', query_text: 'Thank you for the Computer Science resources!', status: 'Closed', created_at: '2023-04-22' },
+  ];
+};
+
+// Fetch study material by ID
+export const fetchStudyMaterialById = async (id: string) => {
   const { data, error } = await supabase
-    .from('user_queries')
-    .select('id, user_name, query_text, status, created_at')
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  
+    .from('study_materials')
+    .select('*')
+    .eq('id', id)
+    .single();
+
   if (error) {
-    console.error('Error fetching recent queries:', error);
-    throw error;
+    console.error("Error fetching study material:", error);
+    throw new Error("Failed to fetch study material");
   }
-  
-  return data || [];
+
+  return data;
+};
+
+// Fetch past paper by ID
+export const fetchPastPaperById = async (id: string) => {
+  const { data, error } = await supabase
+    .from('past_papers')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching past paper:", error);
+    throw new Error("Failed to fetch past paper");
+  }
+
+  return data;
 };

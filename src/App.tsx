@@ -14,6 +14,7 @@ import AdminPanel from "./pages/AdminPanel";
 import ContentViewPage from "./pages/ContentViewPage";
 import NotFound from "./pages/NotFound";
 import ChatBot from "./components/ChatBot";
+import AdminLayout from "./components/admin/AdminLayout";
 import StudyMaterialsManager from "./components/admin/StudyMaterialsManager";
 import PastPapersManager from "./components/admin/PastPapersManager";
 import UserManagement from "./components/admin/UserManagement";
@@ -41,17 +42,22 @@ const App = () => (
           <Route path="/blog/:id" element={<ContentViewPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/admin/materials" element={<StudyMaterialsManager />} />
-          <Route path="/admin/papers" element={<PastPapersManager />} />
-          <Route path="/admin/blogs" element={<BlogEditor />} />
-          <Route path="/admin/users" element={<UserManagement />} />
-          <Route path="/admin/ads" element={<AdvertisementManager />} />
-          <Route path="/admin/categories" element={<CategoriesManager />} />
-          <Route path="/admin/grades" element={<GradesManager />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
-          <Route path="/admin/analytics" element={<AnalyticsPage />} />
-          <Route path="/admin/queries" element={<QueriesManager />} />
+          
+          {/* Admin routes with shared layout */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminPanel />} />
+            <Route path="materials" element={<StudyMaterialsManager />} />
+            <Route path="papers" element={<PastPapersManager />} />
+            <Route path="blogs" element={<BlogEditor />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="ads" element={<AdvertisementManager />} />
+            <Route path="categories" element={<CategoriesManager />} />
+            <Route path="grades" element={<GradesManager />} />
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="queries" element={<QueriesManager />} />
+          </Route>
+          
           <Route path="/content/:id" element={<ContentViewPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
