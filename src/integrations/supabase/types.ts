@@ -9,7 +9,216 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      past_papers: {
+        Row: {
+          created_at: string | null
+          difficulty: string
+          downloads: number | null
+          duration: string
+          file_url: string | null
+          grade: string
+          id: number
+          subject: string
+          title: string
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          difficulty: string
+          downloads?: number | null
+          duration: string
+          file_url?: string | null
+          grade: string
+          id?: number
+          subject: string
+          title: string
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          difficulty?: string
+          downloads?: number | null
+          duration?: string
+          file_url?: string | null
+          grade?: string
+          id?: number
+          subject?: string
+          title?: string
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
+      study_materials: {
+        Row: {
+          author: string
+          category: string
+          content: string
+          date: string
+          description: string
+          download_url: string | null
+          downloads: number | null
+          grade: string | null
+          id: number
+          image_url: string | null
+          is_featured: boolean | null
+          level: string | null
+          pages: number | null
+          rating: number | null
+          read_time: string | null
+          subject: string
+          tags: string[] | null
+          title: string
+          topics: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          author: string
+          category: string
+          content: string
+          date?: string
+          description: string
+          download_url?: string | null
+          downloads?: number | null
+          grade?: string | null
+          id?: number
+          image_url?: string | null
+          is_featured?: boolean | null
+          level?: string | null
+          pages?: number | null
+          rating?: number | null
+          read_time?: string | null
+          subject: string
+          tags?: string[] | null
+          title: string
+          topics?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          author?: string
+          category?: string
+          content?: string
+          date?: string
+          description?: string
+          download_url?: string | null
+          downloads?: number | null
+          grade?: string | null
+          id?: number
+          image_url?: string | null
+          is_featured?: boolean | null
+          level?: string | null
+          pages?: number | null
+          rating?: number | null
+          read_time?: string | null
+          subject?: string
+          tags?: string[] | null
+          title?: string
+          topics?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      user_queries: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: number
+          query_text: string
+          resolved_at: string | null
+          status: string | null
+          user_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: number
+          query_text: string
+          resolved_at?: string | null
+          status?: string | null
+          user_name: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: number
+          query_text?: string
+          resolved_at?: string | null
+          status?: string | null
+          user_name?: string
+        }
+        Relationships: []
+      }
+      website_stats: {
+        Row: {
+          downloads: number | null
+          id: number
+          month: string
+          queries: number | null
+          recorded_at: string
+          visits: number | null
+        }
+        Insert: {
+          downloads?: number | null
+          id?: number
+          month: string
+          queries?: number | null
+          recorded_at?: string
+          visits?: number | null
+        }
+        Update: {
+          downloads?: number | null
+          id?: number
+          month?: string
+          queries?: number | null
+          recorded_at?: string
+          visits?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

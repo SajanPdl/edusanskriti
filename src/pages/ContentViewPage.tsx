@@ -1,84 +1,68 @@
 
-import React, { useState } from 'react';
-import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ContentDetailView from '@/components/ContentDetailView';
-import BlogPostView from '@/components/BlogPostView';
-import StudyMaterialView from '@/components/StudyMaterialView';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useQuery } from '@tanstack/react-query';
-import { fetchStudyMaterial, fetchPastPaper } from '@/utils/queryUtils';
+import { fetchStudyMaterialById } from '@/utils/queryUtils';
+import { Tables } from '@/integrations/supabase/types';
+
+type ContentType = Tables<'study_materials'> | Tables<'past_papers'>;
 
 const ContentViewPage = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [contentTitle, setContentTitle] = useState('');
-  
-  // Determine content type based on URL
-  const isBlogPost = location.pathname.includes('/blog/');
-  const isPastPaper = location.pathname.includes('type=paper') || new URLSearchParams(location.search).get('type') === 'paper';
-  const isStudyMaterial = !isBlogPost && !isPastPaper;
-  
-  // Fetch the appropriate content based on ID and type
-  const { data, isLoading, error } = useQuery({
-    queryKey: [isPastPaper ? 'past_paper' : isStudyMaterial ? 'study_material' : 'blog_post', id],
-    queryFn: async () => {
-      if (!id) return null;
-      
-      if (isPastPaper) {
-        const data = await fetchPastPaper(id);
-        setContentTitle(data.title);
-        return data;
-      } else if (isStudyMaterial) {
-        const data = await fetchStudyMaterial(id);
-        setContentTitle(data.title);
-        return data;
+  const [loading, setLoading] = useState(true);
+  const [content, setContent] = useState<ContentType | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        setLoading(true);
+        if (!id) {
+          throw new Error('Content ID is required');
+        }
+        
+        const data = await fetchStudyMaterialById(id);
+        setContent(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching content:', err);
+        setError('Failed to load content. Please try again later.');
+        setContent(null);
+      } finally {
+        setLoading(false);
       }
-      
-      // Default case is blog post or other content from static data
-      return null;
-    },
-    enabled: !!id && (isPastPaper || isStudyMaterial),
-  });
+    };
+
+    fetchContent();
+  }, [id]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <div className="container mx-auto px-4 pt-24 pb-16">
-        <div className="mb-6">
-          <Button variant="ghost" size="sm" asChild className="flex items-center text-gray-600 hover:text-edu-purple">
-            <Link to={isBlogPost ? "/blog" : isPastPaper ? "/past-papers" : "/study-materials"}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to {isBlogPost ? "Blog" : isPastPaper ? "Past Papers" : "Study Materials"}
-            </Link>
-          </Button>
-        </div>
-        
-        {isLoading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-edu-purple"></div>
+      <main className="flex-grow pt-20">
+        {loading ? (
+          <div className="container mx-auto px-4 py-10 text-center">
+            <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+            <p className="mt-4 text-gray-600">Loading content...</p>
           </div>
         ) : error ? (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">Content Not Found</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">The content you're looking for doesn't exist or has been removed.</p>
-            <Button variant="default" onClick={() => navigate(-1)}>Go Back</Button>
+          <div className="container mx-auto px-4 py-10 text-center">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+              <p>{error}</p>
+            </div>
           </div>
+        ) : content ? (
+          <ContentDetailView content={content} contentType="study-material" />
         ) : (
-          <>
-            {isBlogPost ? (
-              <BlogPostView />
-            ) : isPastPaper ? (
-              <StudyMaterialView data={data} type="past_paper" title={contentTitle} />
-            ) : (
-              <StudyMaterialView data={data} type="study_material" title={contentTitle} />
-            )}
-          </>
+          <div className="container mx-auto px-4 py-10 text-center">
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-md">
+              <p>Content not found.</p>
+            </div>
+          </div>
         )}
-      </div>
+      </main>
       <Footer />
     </div>
   );

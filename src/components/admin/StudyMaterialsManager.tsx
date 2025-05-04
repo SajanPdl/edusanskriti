@@ -36,25 +36,10 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Tables } from '@/integrations/supabase/types';
 
-// Define types for study material
-interface StudyMaterial {
-  id: number;
-  title: string;
-  description: string;
-  content: string;
-  subject: string;
-  category: string;
-  author: string;
-  tags?: string[];
-  grade?: string;
-  date: string;
-  downloads: number;
-  is_featured: boolean;
-  download_url?: string;
-  image_url?: string;
-  updated_at?: string;
-}
+// Use the Supabase types directly
+type StudyMaterial = Tables<'study_materials'>;
 
 // Define type for form data
 interface FormData {
@@ -121,7 +106,7 @@ const StudyMaterialsManager = () => {
       setIsAddDialogOpen(false);
       resetForm();
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to create study material.",
@@ -151,7 +136,7 @@ const StudyMaterialsManager = () => {
       });
       setIsEditDialogOpen(false);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to update study material.",
@@ -178,7 +163,7 @@ const StudyMaterialsManager = () => {
       });
       setIsDeleteDialogOpen(false);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
         description: error.message || "Failed to delete study material.",
@@ -406,11 +391,11 @@ const StudyMaterialsManager = () => {
                       </TableCell>
                       <TableCell>{material.category}</TableCell>
                       <TableCell>{material.subject}</TableCell>
-                      <TableCell>{material.downloads}</TableCell>
+                      <TableCell>{material.downloads ?? 0}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4 text-gray-400" />
-                          <span>{new Date(material.date).toLocaleDateString()}</span>
+                          <span>{material.date ? new Date(material.date).toLocaleDateString() : 'N/A'}</span>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -797,7 +782,7 @@ const StudyMaterialsManager = () => {
                 <span className="font-medium">Author:</span> {selectedMaterial?.author}
               </div>
               <div>
-                <span className="font-medium">Downloads:</span> {selectedMaterial?.downloads}
+                <span className="font-medium">Downloads:</span> {selectedMaterial?.downloads ?? 0}
               </div>
               <div>
                 <span className="font-medium">Date Added:</span> {selectedMaterial?.date && new Date(selectedMaterial.date).toLocaleDateString()}

@@ -1,11 +1,10 @@
 
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Menu, X, Search, GraduationCap, User, LogOut } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);

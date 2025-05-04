@@ -30,11 +30,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from '@/components/ui/textarea';
+import { Tables } from '@/integrations/supabase/types';
+
+type UserQuery = Tables<'user_queries'>;
 
 const QueriesManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [selectedQuery, setSelectedQuery] = useState(null);
+  const [selectedQuery, setSelectedQuery] = useState<UserQuery | null>(null);
   const [replyText, setReplyText] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
@@ -62,13 +65,13 @@ const QueriesManager = () => {
     }
   });
   
-  const handleReplyClick = (query) => {
+  const handleReplyClick = (query: UserQuery) => {
     setSelectedQuery(query);
     setReplyText('');
     setIsDialogOpen(true);
   };
   
-  const handleCloseQuery = async (id) => {
+  const handleCloseQuery = async (id: number) => {
     try {
       const { error } = await supabase
         .from('user_queries')
@@ -104,6 +107,8 @@ const QueriesManager = () => {
       });
       return;
     }
+    
+    if (!selectedQuery) return;
     
     try {
       // In a real application, you would send an email to the user
@@ -220,7 +225,7 @@ const QueriesManager = () => {
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4 text-gray-400" />
-                          <span>{new Date(query.created_at).toLocaleDateString()}</span>
+                          <span>{query.created_at ? new Date(query.created_at).toLocaleDateString() : 'N/A'}</span>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -274,7 +279,7 @@ const QueriesManager = () => {
           <DialogHeader>
             <DialogTitle>{selectedQuery?.status === 'Open' ? 'Reply to Query' : 'Query Details'}</DialogTitle>
             <DialogDescription>
-              From: {selectedQuery?.user_name} ({selectedQuery?.email})
+              From: {selectedQuery?.user_name} ({selectedQuery?.email || 'No email provided'})
             </DialogDescription>
           </DialogHeader>
           

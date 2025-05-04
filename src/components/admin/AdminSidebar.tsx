@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   LayoutDashboard, 
@@ -35,47 +36,56 @@ interface AdminSidebarProps {
 const AdminSidebar = ({ activeTab, setActiveTab, collapsed = false, setCollapsed }: AdminSidebarProps) => {
   const [contentOpen, setContentOpen] = React.useState(true);
   const { toast } = useToast();
+  const location = useLocation();
   
   const sidebarItems = [
     {
       name: 'Dashboard',
       icon: LayoutDashboard,
-      id: 'dashboard'
+      id: 'dashboard',
+      path: '/admin'
     },
     {
       name: 'Study Materials',
       icon: BookText,
-      id: 'materials'
+      id: 'materials',
+      path: '/admin/materials'
     },
     {
       name: 'Past Papers',
       icon: FileText,
-      id: 'papers'
+      id: 'papers',
+      path: '/admin/papers'
     },
     {
       name: 'Users',
       icon: Users,
-      id: 'users'
+      id: 'users',
+      path: '/admin/users'
     },
     {
       name: 'Queries',
       icon: MessageSquare,
-      id: 'queries'
+      id: 'queries',
+      path: '/admin/queries'
     },
     {
       name: 'Advertisement',
       icon: Bell,
-      id: 'ads'
+      id: 'ads',
+      path: '/admin/ads'
     },
     {
       name: 'Analytics',
       icon: BarChart2,
-      id: 'analytics'
+      id: 'analytics',
+      path: '/admin/analytics'
     },
     {
       name: 'Settings',
       icon: Settings,
-      id: 'settings'
+      id: 'settings',
+      path: '/admin/settings'
     }
   ];
   
@@ -137,18 +147,20 @@ const AdminSidebar = ({ activeTab, setActiveTab, collapsed = false, setCollapsed
             {sidebarItems.map((item) => (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "w-full justify-start text-indigo-100 hover:text-white hover:bg-indigo-800",
-                      activeTab === item.id && "bg-indigo-700 text-white",
-                      collapsed && "justify-center px-2"
-                    )}
-                    onClick={() => setActiveTab(item.id)}
-                  >
-                    <item.icon className={cn("h-5 w-5", collapsed ? "mr-0" : "mr-3")} />
-                    {!collapsed && <span>{item.name}</span>}
-                  </Button>
+                  <Link to={item.path}>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full justify-start text-indigo-100 hover:text-white hover:bg-indigo-800",
+                        (activeTab === item.id || location.pathname === item.path) && "bg-indigo-700 text-white",
+                        collapsed && "justify-center px-2"
+                      )}
+                      onClick={() => setActiveTab(item.id)}
+                    >
+                      <item.icon className={cn("h-5 w-5", collapsed ? "mr-0" : "mr-3")} />
+                      {!collapsed && <span>{item.name}</span>}
+                    </Button>
+                  </Link>
                 </TooltipTrigger>
                 {collapsed && (
                   <TooltipContent side="right">
@@ -180,17 +192,19 @@ const AdminSidebar = ({ activeTab, setActiveTab, collapsed = false, setCollapsed
             <User className="h-5 w-5 text-white" />
           </div>
         )}
-        <Button 
-          variant="ghost" 
-          className={cn(
-            "w-full mt-2 justify-start text-red-300 hover:text-red-200 hover:bg-indigo-800",
-            collapsed && "justify-center p-2"
-          )}
-          onClick={handleLogout}
-        >
-          <LogOut className={cn("h-4 w-4", collapsed ? "mr-0" : "mr-2")} />
-          {!collapsed && "Logout"}
-        </Button>
+        <Link to="/login">
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full mt-2 justify-start text-red-300 hover:text-red-200 hover:bg-indigo-800",
+              collapsed && "justify-center p-2"
+            )}
+            onClick={handleLogout}
+          >
+            <LogOut className={cn("h-4 w-4", collapsed ? "mr-0" : "mr-2")} />
+            {!collapsed && "Logout"}
+          </Button>
+        </Link>
       </div>
     </aside>
   );
