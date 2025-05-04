@@ -8,22 +8,24 @@ import { studyMaterialsData } from '@/data/studyMaterialsData';
 import { filterMaterials } from '@/utils/studyMaterialsUtils';
 
 const StudyMaterials = () => {
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [activeSubject, setActiveSubject] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
-  const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
-
-  const toggleCardExpand = (id: number) => {
-    setExpandedCardId(expandedCardId === id ? null : id);
-  };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedGrade, setSelectedGrade] = useState("All");
+  const [selectedSubject, setSelectedSubject] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const filteredMaterials = filterMaterials(
     studyMaterialsData,
-    activeCategory,
-    activeSubject,
-    searchQuery
+    selectedCategory,
+    selectedSubject,
+    searchTerm
   );
+  
+  // Filter options
+  const filterOptions = {
+    grades: ['All', 'Grade 10', 'Grade 11', 'Grade 12', "Bachelor's"],
+    subjects: ['All', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography'],
+    categories: ['All', 'Notes', 'Worksheets', 'Practice Tests', 'Guides']
+  };
 
   return (
     <section id="study-materials" className="py-20 bg-gray-50 dark:bg-gray-900">
@@ -36,12 +38,15 @@ const StudyMaterials = () => {
         </div>
 
         <MaterialsFilter 
-          activeCategory={activeCategory}
-          activeSubject={activeSubject}
-          searchQuery={searchQuery}
-          setActiveCategory={setActiveCategory}
-          setActiveSubject={setActiveSubject}
-          setSearchQuery={setSearchQuery}
+          options={filterOptions}
+          searchTerm={searchTerm}
+          selectedGrade={selectedGrade}
+          selectedSubject={selectedSubject}
+          selectedCategory={selectedCategory}
+          onSearch={setSearchTerm}
+          onGradeChange={setSelectedGrade}
+          onSubjectChange={setSelectedSubject}
+          onCategoryChange={setSelectedCategory}
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -49,10 +54,6 @@ const StudyMaterials = () => {
             <MaterialCard 
               key={material.id}
               material={material}
-              hoveredId={hoveredId}
-              expandedCardId={expandedCardId}
-              onHover={setHoveredId}
-              onExpandToggle={toggleCardExpand}
             />
           ))}
         </div>

@@ -97,7 +97,7 @@ const ContentViewPage = () => {
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-12">
         {contentType === 'study-material' && (
-          <StudyMaterialView material={content as StudyMaterial} />
+          <StudyMaterialView studyMaterial={content as StudyMaterial} />
         )}
         {contentType === 'past-paper' && (
           <div>
