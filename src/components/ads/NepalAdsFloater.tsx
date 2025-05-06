@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Flag, Mountain } from 'lucide-react';
 
 export const NepalAdsFloater = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -69,20 +69,20 @@ export const NepalAdsFloater = () => {
       }}
     >
       <div 
-        className="rounded-lg overflow-hidden shadow-lg"
+        className="rounded-lg overflow-hidden shadow-lg border border-white/20 backdrop-blur-sm"
         onMouseDown={handleMouseDown}
       >
-        {/* Nepalese-style header */}
+        {/* Nepali-style header with flag colors */}
         <div 
           className="cursor-move p-2 flex justify-between items-center" 
           style={{ 
-            background: 'linear-gradient(135deg, #9b87f5 0%, #7E69AB 100%)',
-            borderBottom: '3px solid #FEC6A1'
+            background: 'linear-gradient(135deg, #DC143C 0%, #003893 100%)',
+            borderBottom: '3px solid #FFF'
           }}
         >
           <div className="flex items-center">
-            <div className="w-6 h-6 mr-2 bg-white rounded-full p-1">
-              <div className="w-full h-full bg-red-600 rounded-full"></div>
+            <div className="mr-2 text-white">
+              <Flag size={18} />
             </div>
             <span className="font-bold text-white">Nepal Study Resources</span>
           </div>
@@ -94,38 +94,50 @@ export const NepalAdsFloater = () => {
           </button>
         </div>
         
-        {/* Ad content */}
-        <div className="bg-gray-50 p-4">
-          <div className="mb-3 text-center">
-            <div className="inline-block p-1 rounded bg-gradient-to-r from-[#FEC6A1] to-[#F97316]">
+        {/* Ad content with Nepal theme */}
+        <div className="bg-white/90 dark:bg-gray-800/90 p-4">
+          <div className="mb-3 text-center relative">
+            {/* Mountain icon for Nepal theme */}
+            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 opacity-10">
+              <Mountain size={100} className="text-[#003893]" />
+            </div>
+            
+            <div className="inline-block p-1 rounded bg-gradient-to-r from-[#DC143C] to-[#003893]">
               <span className="text-sm font-bold text-white">SPECIAL OFFER</span>
             </div>
           </div>
 
           <div className="text-center mb-3">
-            <h3 className="text-lg font-bold text-[#7E69AB]">Complete Class 10 SEE Prep Pack</h3>
-            <p className="text-sm text-gray-700">Exclusive materials from top Nepal educators</p>
+            <h3 className="text-lg font-bold text-[#003893]">Complete SEE Preparation Pack</h3>
+            <p className="text-sm text-gray-700 dark:text-gray-300">Exclusive materials from top Nepal educators</p>
           </div>
 
-          <div className="text-center p-2 mb-3 border border-dashed border-[#9b87f5] rounded bg-white">
-            <span className="text-2xl font-bold text-[#F97316]">50% OFF</span>
-            <p className="text-xs text-gray-700">Offer valid until this week</p>
+          <div className="text-center p-2 mb-3 border border-dashed border-[#DC143C] rounded bg-white dark:bg-gray-700">
+            <span className="text-2xl font-bold text-[#DC143C]">50% OFF</span>
+            <p className="text-xs text-gray-700 dark:text-gray-300">Limited time offer - Expires soon!</p>
           </div>
 
           <button
-            className="w-full py-2 px-4 bg-[#F97316] hover:bg-[#E45800] text-white font-bold rounded-full transition-colors duration-300"
+            className="w-full py-2 px-4 bg-gradient-to-r from-[#DC143C] to-[#003893] hover:opacity-90 text-white font-bold rounded-full transition-all duration-300 transform hover:scale-105"
           >
             Download Now
           </button>
         </div>
         
-        {/* Nepali pattern footer */}
-        <div 
-          className="h-6" 
-          style={{ 
-            backgroundImage: 'repeating-linear-gradient(45deg, #9b87f5, #9b87f5 10px, #7E69AB 10px, #7E69AB 20px)'
-          }}
-        ></div>
+        {/* Nepali pattern footer - triangle pattern inspired by flag */}
+        <div className="h-6 relative overflow-hidden" 
+             style={{ background: 'linear-gradient(to right, #DC143C, #003893)' }}>
+          <div className="absolute inset-0 flex">
+            {[...Array(14)].map((_, i) => (
+              <div key={i} className="h-full w-4" 
+                   style={{
+                     borderRight: i % 2 === 0 ? '8px solid transparent' : 'none',
+                     borderLeft: i % 2 !== 0 ? '8px solid transparent' : 'none',
+                     borderBottom: `6px solid ${i % 2 === 0 ? 'white' : 'transparent'}`
+                   }} />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
