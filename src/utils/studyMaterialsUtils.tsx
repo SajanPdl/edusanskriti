@@ -1,6 +1,7 @@
 
 import { BookOpen, BookText, FileText } from 'lucide-react';
-import { StudyMaterial } from '@/data/studyMaterialsData';
+import { StudyMaterial as LocalStudyMaterial } from '@/data/studyMaterialsData';
+import { StudyMaterial } from '@/utils/queryUtils';
 
 export const getSubjectIcon = (subject: string) => {
   switch (subject) {
@@ -16,11 +17,11 @@ export const getSubjectIcon = (subject: string) => {
 };
 
 export const filterMaterials = (
-  materials: StudyMaterial[],
+  materials: LocalStudyMaterial[],
   activeCategory: string,
   activeSubject: string,
   searchQuery: string
-) => {
+): LocalStudyMaterial[] => {
   return materials.filter(material => {
     const matchesCategory = activeCategory === "All" || material.category === activeCategory;
     const matchesSubject = activeSubject === "All" || material.subject === activeSubject;

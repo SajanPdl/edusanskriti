@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -221,7 +220,13 @@ const StudyMaterialsManager = () => {
       downloads: 0,
       is_featured: false,
       download_url: formData.file ? URL.createObjectURL(formData.file) : null,
-      image_url: null
+      image_url: null,
+      updated_at: new Date().toISOString(),
+      level: null,
+      pages: null,
+      rating: null,
+      read_time: null,
+      topics: null
     };
     
     createMutation.mutate(newMaterial);

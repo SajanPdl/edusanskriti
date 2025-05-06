@@ -6,6 +6,7 @@ import MaterialCard from './study-materials/MaterialCard';
 import MaterialsFilter from './study-materials/MaterialsFilter';
 import { studyMaterialsData } from '@/data/studyMaterialsData';
 import { filterMaterials } from '@/utils/studyMaterialsUtils';
+import { StudyMaterial } from '@/utils/queryUtils';
 
 const StudyMaterials = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,6 +14,7 @@ const StudyMaterials = () => {
   const [selectedSubject, setSelectedSubject] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  // Make sure the filtered materials are compatible with the StudyMaterial type from queryUtils
   const filteredMaterials = filterMaterials(
     studyMaterialsData,
     selectedCategory,
@@ -53,7 +55,7 @@ const StudyMaterials = () => {
           {filteredMaterials.map((material) => (
             <MaterialCard 
               key={material.id}
-              material={material}
+              material={material as unknown as StudyMaterial}
             />
           ))}
         </div>
