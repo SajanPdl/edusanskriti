@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,7 @@ import {
 import { StudyMaterial, PastPaper } from '@/utils/queryUtils';
 
 interface StudyMaterialViewProps {
-  material: StudyMaterial;
+  material: StudyMaterial | PastPaper;
   type?: 'study_material' | 'past_paper';
 }
 
@@ -35,7 +36,9 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
     });
     
     // Open the file URL in a new tab
-    if (material.download_url) {
+    if (isPastPaper && 'file_url' in material) {
+      window.open(material.file_url, '_blank');
+    } else if (!isPastPaper && 'download_url' in material) {
       window.open(material.download_url, '_blank');
     } else {
       // Fallback for demo
@@ -63,11 +66,11 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
             <>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-purple/10 text-edu-purple">
                 <Award className="h-4 w-4 mr-2" />
-                {material.difficulty || 'Medium'}
+                {'difficulty' in material ? material.difficulty : 'Medium'}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-blue/10 text-edu-blue">
                 <Calendar className="h-4 w-4 mr-2" />
-                {(material as PastPaper).year || new Date().getFullYear()}
+                {'year' in material ? material.year : new Date().getFullYear()}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-green/10 text-edu-green">
                 <FileText className="h-4 w-4 mr-2" />
@@ -82,25 +85,25 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
             <>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-purple/10 text-edu-purple">
                 <Book className="h-4 w-4 mr-2" />
-                {material.category || 'Study Material'}
+                {'category' in material ? material.category : 'Study Material'}
               </span>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-blue/10 text-edu-blue">
                 <FileText className="h-4 w-4 mr-2" />
                 {material.subject || 'General'}
               </span>
-              {material.level || material.grade ? (
+              {('level' in material && material.level) || ('grade' in material && material.grade) ? (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-green/10 text-edu-green">
                   <Info className="h-4 w-4 mr-2" />
-                  {material.level || material.grade || 'All Levels'}
+                  {('level' in material ? material.level : null) || ('grade' in material ? material.grade : null) || 'All Levels'}
                 </span>
               ) : null}
-              {material.author ? (
+              {'author' in material && material.author ? (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-orange/10 text-edu-orange">
                   <User className="h-4 w-4 mr-2" />
                   {material.author}
                 </span>
               ) : null}
-              {material.read_time ? (
+              {'read_time' in material && material.read_time ? (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
                   <Clock className="h-4 w-4 mr-2" />
                   {material.read_time}
@@ -120,20 +123,20 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
                 <Download className="h-4 w-4 mr-2" />
                 <span>{material.downloads || 0} downloads</span>
               </div>
-              {isPastPaper ? (
+              {isPastPaper && 'duration' in material ? (
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-2" />
-                  <span>Duration: {(material as PastPaper).duration || 'Not specified'}</span>
+                  <span>Duration: {material.duration || 'Not specified'}</span>
                 </div>
               ) : (
                 <>
-                  {material.pages && (
+                  {'pages' in material && material.pages && (
                     <div className="flex items-center">
                       <FileText className="h-4 w-4 mr-2" />
                       <span>{material.pages} pages</span>
                     </div>
                   )}
-                  {material.rating && (
+                  {'rating' in material && material.rating && (
                     <div className="flex items-center">
                       <Award className="h-4 w-4 mr-2" />
                       <span>Rating: {material.rating}/5</span>
@@ -141,7 +144,7 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
                   )}
                 </>
               )}
-              {material.date && (
+              {('date' in material && material.date) && (
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
                   <span>Published: {new Date(material.date).toLocaleDateString()}</span>
@@ -171,7 +174,7 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
           </div>
         </div>
         
-        {material.description && (
+        {'description' in material && material.description && (
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-4">Description</h3>
             <div className="prose dark:prose-invert max-w-none">
@@ -180,7 +183,7 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
           </div>
         )}
         
-        {material.content && (
+        {'content' in material && material.content && (
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-4">Content</h3>
             <div className="prose dark:prose-invert max-w-none">
@@ -189,7 +192,7 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
           </div>
         )}
         
-        {material.tags && material.tags.length > 0 && (
+        {'tags' in material && material.tags && material.tags.length > 0 && (
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-3">Tags</h3>
             <div className="flex flex-wrap gap-2">

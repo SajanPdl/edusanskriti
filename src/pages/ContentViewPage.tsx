@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -95,18 +96,10 @@ const ContentViewPage = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-12">
-        {contentType === 'study-material' && (
-          <StudyMaterialView 
-            material={content as StudyMaterial} 
-            type="study_material" 
-          />
-        )}
-        {contentType === 'past-paper' && (
-          <StudyMaterialView 
-            material={content as PastPaper} 
-            type="past_paper"
-          />
-        )}
+        <StudyMaterialView 
+          material={content}
+          type={contentType === 'past-paper' ? 'past_paper' : 'study_material'}
+        />
       </main>
       <Footer />
     </div>
