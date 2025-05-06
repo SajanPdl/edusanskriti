@@ -1,21 +1,29 @@
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import StudyMaterialView from '@/components/StudyMaterialView';
 import { fetchStudyMaterialById, fetchPastPaperById } from '@/utils/queryUtils';
 import { StudyMaterial, PastPaper } from '@/utils/queryUtils';
 import { NepalAdsFloater } from '@/components/ads/NepalAdsFloater';
+import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const ContentViewPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [content, setContent] = useState<StudyMaterial | PastPaper | null>(null);
   const [contentType, setContentType] = useState<'study-material' | 'past-paper' | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
+    // Check if user has premium status from localStorage
+    const userSubscription = localStorage.getItem('userSubscription');
+    setIsPremium(userSubscription === 'premium');
+
     const loadContent = async () => {
       if (!id) {
         setError("Content ID not found");
@@ -65,6 +73,16 @@ const ContentViewPage = () => {
     loadContent();
   }, [id]);
 
+  const handleBack = () => {
+    if (contentType === 'study-material') {
+      navigate('/study-materials');
+    } else if (contentType === 'past-paper') {
+      navigate('/past-papers');
+    } else {
+      navigate('/');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -84,9 +102,14 @@ const ContentViewPage = () => {
         <div className="flex-grow flex flex-col items-center justify-center p-4">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Content Not Found</h1>
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">{error || "The content you're looking for doesn't exist or has been removed."}</p>
-          <a href="/" className="px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors">
-            Back to Home
-          </a>
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft size={16} />
+            Back to {contentType === 'study-material' ? 'Study Materials' : contentType === 'past-paper' ? 'Past Papers' : 'Home'}
+          </Button>
         </div>
         <Footer />
       </div>
@@ -97,11 +120,24 @@ const ContentViewPage = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow container mx-auto px-4 py-12">
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft size={16} />
+            Back to {contentType === 'study-material' ? 'Study Materials' : 'Past Papers'}
+          </Button>
+        </div>
+        
         <StudyMaterialView 
           material={content}
           type={contentType === 'past-paper' ? 'past_paper' : 'study_material'}
         />
-        <NepalAdsFloater />
+        
+        {/* Only show ads to non-premium users */}
+        {!isPremium && <NepalAdsFloater />}
       </main>
       <Footer />
     </div>
