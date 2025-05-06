@@ -15,10 +15,20 @@ import {
   Info
 } from 'lucide-react';
 import { StudyMaterial, PastPaper } from '@/utils/queryUtils';
+import { NepalAdsFloater } from './ads/NepalAdsFloater';
 
 interface StudyMaterialViewProps {
   material: StudyMaterial | PastPaper;
   type?: 'study_material' | 'past_paper';
+}
+
+// Type guards for narrowing types
+function isPastPaper(material: StudyMaterial | PastPaper): material is PastPaper {
+  return 'year' in material && 'difficulty' in material;
+}
+
+function isStudyMaterial(material: StudyMaterial | PastPaper): material is StudyMaterial {
+  return 'category' in material && 'author' in material;
 }
 
 const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialViewProps) => {
@@ -26,7 +36,8 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
   
   if (!material) return null;
   
-  const isPastPaper = type === 'past_paper';
+  // Determine the type from the material itself if not provided
+  const isPastPaperMaterial = type === 'past_paper' || isPastPaper(material);
   
   const handleDownload = () => {
     // Track download count in Supabase (would implement in production)
@@ -36,9 +47,9 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
     });
     
     // Open the file URL in a new tab
-    if (isPastPaper && 'file_url' in material) {
+    if (isPastPaperMaterial && isPastPaper(material)) {
       window.open(material.file_url, '_blank');
-    } else if (!isPastPaper && 'download_url' in material) {
+    } else if (isStudyMaterial(material)) {
       window.open(material.download_url, '_blank');
     } else {
       // Fallback for demo
@@ -62,54 +73,58 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-4">{material.title}</h1>
         
         <div className="flex flex-wrap items-center gap-4 mb-6">
-          {isPastPaper ? (
-            <>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-purple/10 text-edu-purple">
-                <Award className="h-4 w-4 mr-2" />
-                {'difficulty' in material ? material.difficulty : 'Medium'}
-              </span>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-blue/10 text-edu-blue">
-                <Calendar className="h-4 w-4 mr-2" />
-                {'year' in material ? material.year : new Date().getFullYear()}
-              </span>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-green/10 text-edu-green">
-                <FileText className="h-4 w-4 mr-2" />
-                {material.subject || 'General'}
-              </span>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-orange/10 text-edu-orange">
-                <Info className="h-4 w-4 mr-2" />
-                {material.grade || 'All Grades'}
-              </span>
-            </>
-          ) : (
-            <>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-purple/10 text-edu-purple">
-                <Book className="h-4 w-4 mr-2" />
-                {'category' in material ? material.category : 'Study Material'}
-              </span>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-blue/10 text-edu-blue">
-                <FileText className="h-4 w-4 mr-2" />
-                {material.subject || 'General'}
-              </span>
-              {('level' in material && material.level) || ('grade' in material && material.grade) ? (
+          {isPastPaperMaterial ? (
+            isPastPaper(material) && (
+              <>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-purple/10 text-edu-purple">
+                  <Award className="h-4 w-4 mr-2" />
+                  {material.difficulty}
+                </span>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-blue/10 text-edu-blue">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  {material.year}
+                </span>
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-green/10 text-edu-green">
-                  <Info className="h-4 w-4 mr-2" />
-                  {('level' in material ? material.level : null) || ('grade' in material ? material.grade : null) || 'All Levels'}
+                  <FileText className="h-4 w-4 mr-2" />
+                  {material.subject || 'General'}
                 </span>
-              ) : null}
-              {'author' in material && material.author ? (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-orange/10 text-edu-orange">
-                  <User className="h-4 w-4 mr-2" />
-                  {material.author}
+                  <Info className="h-4 w-4 mr-2" />
+                  {material.grade || 'All Grades'}
                 </span>
-              ) : null}
-              {'read_time' in material && material.read_time ? (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                  <Clock className="h-4 w-4 mr-2" />
-                  {material.read_time}
+              </>
+            )
+          ) : (
+            isStudyMaterial(material) && (
+              <>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-purple/10 text-edu-purple">
+                  <Book className="h-4 w-4 mr-2" />
+                  {material.category}
                 </span>
-              ) : null}
-            </>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-blue/10 text-edu-blue">
+                  <FileText className="h-4 w-4 mr-2" />
+                  {material.subject || 'General'}
+                </span>
+                {material.grade && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-green/10 text-edu-green">
+                    <Info className="h-4 w-4 mr-2" />
+                    {material.grade}
+                  </span>
+                )}
+                {material.author && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-edu-orange/10 text-edu-orange">
+                    <User className="h-4 w-4 mr-2" />
+                    {material.author}
+                  </span>
+                )}
+                {material.read_time && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+                    <Clock className="h-4 w-4 mr-2" />
+                    {material.read_time}
+                  </span>
+                )}
+              </>
+            )
           )}
         </div>
       </div>
@@ -123,28 +138,30 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
                 <Download className="h-4 w-4 mr-2" />
                 <span>{material.downloads || 0} downloads</span>
               </div>
-              {isPastPaper && 'duration' in material ? (
+              {isPastPaperMaterial && isPastPaper(material) && material.duration ? (
                 <div className="flex items-center">
                   <Clock className="h-4 w-4 mr-2" />
-                  <span>Duration: {material.duration || 'Not specified'}</span>
+                  <span>Duration: {material.duration}</span>
                 </div>
               ) : (
-                <>
-                  {'pages' in material && material.pages && (
-                    <div className="flex items-center">
-                      <FileText className="h-4 w-4 mr-2" />
-                      <span>{material.pages} pages</span>
-                    </div>
-                  )}
-                  {'rating' in material && material.rating && (
-                    <div className="flex items-center">
-                      <Award className="h-4 w-4 mr-2" />
-                      <span>Rating: {material.rating}/5</span>
-                    </div>
-                  )}
-                </>
+                isStudyMaterial(material) && (
+                  <>
+                    {material.pages && (
+                      <div className="flex items-center">
+                        <FileText className="h-4 w-4 mr-2" />
+                        <span>{material.pages} pages</span>
+                      </div>
+                    )}
+                    {material.rating && (
+                      <div className="flex items-center">
+                        <Award className="h-4 w-4 mr-2" />
+                        <span>Rating: {material.rating}/5</span>
+                      </div>
+                    )}
+                  </>
+                )
               )}
-              {('date' in material && material.date) && (
+              {isStudyMaterial(material) && material.date && (
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-2" />
                   <span>Published: {new Date(material.date).toLocaleDateString()}</span>
@@ -159,10 +176,10 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
               className="flex items-center justify-center px-4 py-2 bg-edu-purple text-white rounded-lg hover:bg-edu-indigo transition-colors"
             >
               <Download className="h-4 w-4 mr-2" />
-              Download {isPastPaper ? 'Paper' : 'Material'}
+              Download {isPastPaperMaterial ? 'Paper' : 'Material'}
             </Button>
             
-            {isPastPaper && (
+            {isPastPaperMaterial && (
               <Button 
                 onClick={handleSolutionDownload}
                 className="flex items-center justify-center px-4 py-2 bg-edu-orange text-white rounded-lg hover:bg-edu-gold transition-colors"
@@ -174,7 +191,7 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
           </div>
         </div>
         
-        {'description' in material && material.description && (
+        {isStudyMaterial(material) && material.description && (
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-4">Description</h3>
             <div className="prose dark:prose-invert max-w-none">
@@ -183,7 +200,7 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
           </div>
         )}
         
-        {'content' in material && material.content && (
+        {isStudyMaterial(material) && material.content && (
           <div className="mb-6">
             <h3 className="text-xl font-semibold mb-4">Content</h3>
             <div className="prose dark:prose-invert max-w-none">
@@ -192,7 +209,7 @@ const StudyMaterialView = ({ material, type = 'study_material' }: StudyMaterialV
           </div>
         )}
         
-        {'tags' in material && material.tags && material.tags.length > 0 && (
+        {isStudyMaterial(material) && material.tags && material.tags.length > 0 && (
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-3">Tags</h3>
             <div className="flex flex-wrap gap-2">

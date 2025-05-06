@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import StudyMaterialView from '@/components/StudyMaterialView';
 import { fetchStudyMaterialById, fetchPastPaperById } from '@/utils/queryUtils';
 import { StudyMaterial, PastPaper } from '@/utils/queryUtils';
+import { NepalAdsFloater } from '@/components/ads/NepalAdsFloater';
 
 const ContentViewPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -100,6 +101,7 @@ const ContentViewPage = () => {
           material={content}
           type={contentType === 'past-paper' ? 'past_paper' : 'study_material'}
         />
+        <NepalAdsFloater />
       </main>
       <Footer />
     </div>

@@ -1,9 +1,10 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import MaterialCard from './study-materials/MaterialCard';
 import MaterialsFilter from './study-materials/MaterialsFilter';
+import ContentPagination from './common/ContentPagination';
 import { studyMaterialsData } from '@/data/studyMaterialsData';
 import { filterMaterials } from '@/utils/studyMaterialsUtils';
 import { StudyMaterial } from '@/utils/queryUtils';
@@ -13,8 +14,17 @@ const StudyMaterials = () => {
   const [selectedGrade, setSelectedGrade] = useState("All");
   const [selectedSubject, setSelectedSubject] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
-  // Make sure the filtered materials are compatible with the StudyMaterial type from queryUtils
+  // Filter options
+  const filterOptions = {
+    grades: ['All', 'Grade 10', 'Grade 11', 'Grade 12', "Bachelor's"],
+    subjects: ['All', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography'],
+    categories: ['All', 'Notes', 'Worksheets', 'Practice Tests', 'Guides']
+  };
+
+  // Get filtered materials
   const filteredMaterials = filterMaterials(
     studyMaterialsData,
     selectedCategory,
@@ -22,11 +32,22 @@ const StudyMaterials = () => {
     searchTerm
   );
   
-  // Filter options
-  const filterOptions = {
-    grades: ['All', 'Grade 10', 'Grade 11', 'Grade 12', "Bachelor's"],
-    subjects: ['All', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'History', 'Geography'],
-    categories: ['All', 'Notes', 'Worksheets', 'Practice Tests', 'Guides']
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedGrade, selectedSubject, selectedCategory]);
+  
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredMaterials.length / itemsPerPage);
+  const paginatedMaterials = filteredMaterials.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -51,14 +72,33 @@ const StudyMaterials = () => {
           onCategoryChange={setSelectedCategory}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {filteredMaterials.map((material) => (
-            <MaterialCard 
-              key={material.id}
-              material={material as unknown as StudyMaterial}
-            />
-          ))}
-        </div>
+        {paginatedMaterials.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {paginatedMaterials.map((material) => (
+              <MaterialCard 
+                key={material.id}
+                material={material as unknown as StudyMaterial}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <h3 className="text-xl font-medium mb-2">No materials found</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              Try changing your search criteria or browse all materials.
+            </p>
+          </div>
+        )}
+        
+        {filteredMaterials.length > itemsPerPage && (
+          <ContentPagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            totalItems={filteredMaterials.length}
+            itemsPerPage={itemsPerPage}
+          />
+        )}
 
         <div className="text-center mt-12">
           <Button className="btn-primary scale-on-hover" asChild>
