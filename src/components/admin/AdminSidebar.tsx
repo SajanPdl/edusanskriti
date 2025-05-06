@@ -58,6 +58,12 @@ const AdminSidebar = ({ activeTab, setActiveTab, collapsed = false, setCollapsed
       path: '/admin/papers'
     },
     {
+      name: 'Categories',
+      icon: Tag,
+      id: 'categories',
+      path: '/admin/categories'
+    },
+    {
       name: 'Users',
       icon: Users,
       id: 'users',

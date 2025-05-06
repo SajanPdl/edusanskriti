@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Plus, Pencil, Trash2, Tag } from 'lucide-react';
 import { toast } from 'sonner';
+import CategoryAdder from './CategoryAdder';
 
 interface Category {
   id: number;
@@ -21,18 +22,16 @@ const CategoriesManager = () => {
     { id: 4, name: 'History', description: 'Historical events, civilizations, and timelines', count: 19 }
   ]);
   
-  const [newCategory, setNewCategory] = useState({ name: '', description: '' });
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   
-  const handleAddCategory = () => {
-    if (!newCategory.name) {
-      toast.error('Category name is required');
-      return;
-    }
-    
+  const handleAddCategory = (newCategory: {name: string, description?: string}) => {
     const id = Math.max(0, ...categories.map(c => c.id)) + 1;
-    setCategories([...categories, { ...newCategory, id, count: 0 }]);
-    setNewCategory({ name: '', description: '' });
+    setCategories([...categories, { 
+      ...newCategory, 
+      id, 
+      count: 0,
+      description: newCategory.description || ''
+    }]);
     toast.success('Category added successfully');
   };
   
@@ -58,46 +57,16 @@ const CategoriesManager = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Tag className="h-5 w-5 text-primary" />
-            <span>Add New Category</span>
+            <span>Category Management</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="category-name">
-                Category Name
-              </label>
-              <Input
-                id="category-name"
-                value={newCategory.name}
-                onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                placeholder="e.g., Physics"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="category-description">
-                Description
-              </label>
-              <Input
-                id="category-description"
-                value={newCategory.description}
-                onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
-                placeholder="Short description of the category"
-              />
-            </div>
-          </div>
-          <Button className="mt-4" onClick={handleAddCategory}>
-            <Plus className="h-4 w-4 mr-2" /> Add Category
-          </Button>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Manage Categories</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
+          <CategoryAdder 
+            onAddCategory={handleAddCategory}
+            className="mb-6" 
+          />
+          
+          <div className="rounded-md border mt-8">
             <div className="grid grid-cols-12 border-b px-4 py-3 font-medium">
               <div className="col-span-4">Name</div>
               <div className="col-span-5">Description</div>
