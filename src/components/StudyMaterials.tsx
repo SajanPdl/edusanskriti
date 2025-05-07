@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import ContentPagination from './common/ContentPagination';
 import { studyMaterialsData } from '@/data/studyMaterialsData';
 import { filterMaterials } from '@/utils/studyMaterialsUtils';
 import { StudyMaterial } from '@/utils/queryUtils';
+import AdPlacement from './ads/AdPlacement';
 
 const StudyMaterials = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,6 +61,9 @@ const StudyMaterials = () => {
           </p>
         </div>
 
+        {/* Add content ad placement above filters */}
+        <AdPlacement position="content" className="mb-8" />
+
         <MaterialsFilter 
           options={filterOptions}
           searchTerm={searchTerm}
@@ -71,34 +76,47 @@ const StudyMaterials = () => {
           onCategoryChange={setSelectedCategory}
         />
 
-        {paginatedMaterials.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {paginatedMaterials.map((material) => (
-              <MaterialCard 
-                key={material.id}
-                material={material as unknown as StudyMaterial}
-                linkTo={`/content/${material.id}`}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Main content area */}
+          <div className="lg:w-3/4">
+            {paginatedMaterials.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {paginatedMaterials.map((material) => (
+                  <MaterialCard 
+                    key={material.id}
+                    material={material as unknown as StudyMaterial}
+                    linkTo={`/content/${material.id}`}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <h3 className="text-xl font-medium mb-2">No materials found</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
+                  Try changing your search criteria or browse all materials.
+                </p>
+              </div>
+            )}
+            
+            {filteredMaterials.length > itemsPerPage && (
+              <ContentPagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                totalItems={filteredMaterials.length}
+                itemsPerPage={itemsPerPage}
               />
-            ))}
+            )}
           </div>
-        ) : (
-          <div className="text-center py-12">
-            <h3 className="text-xl font-medium mb-2">No materials found</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
-              Try changing your search criteria or browse all materials.
-            </p>
+          
+          {/* Sidebar with ads */}
+          <div className="lg:w-1/4">
+            <AdPlacement position="sidebar" />
           </div>
-        )}
-        
-        {filteredMaterials.length > itemsPerPage && (
-          <ContentPagination 
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            totalItems={filteredMaterials.length}
-            itemsPerPage={itemsPerPage}
-          />
-        )}
+        </div>
+
+        {/* Footer ad */}
+        <AdPlacement position="footer" className="mt-12" />
 
         <div className="text-center mt-12">
           <Button className="btn-primary scale-on-hover" asChild>
