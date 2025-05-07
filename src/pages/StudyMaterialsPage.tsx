@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -121,9 +120,11 @@ const StudyMaterialsPage = () => {
               ) : materials.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {materials.map((material) => (
-                    <Link to={`/content/${material.id}`} key={material.id}>
-                      <MaterialCard material={material} />
-                    </Link>
+                    <MaterialCard 
+                      key={material.id} 
+                      material={material}
+                      linkTo={`/content/${material.id}`}
+                    />
                   ))}
                 </div>
               ) : (

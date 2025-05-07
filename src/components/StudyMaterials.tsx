@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -78,6 +77,7 @@ const StudyMaterials = () => {
               <MaterialCard 
                 key={material.id}
                 material={material as unknown as StudyMaterial}
+                linkTo={`/content/${material.id}`}
               />
             ))}
           </div>

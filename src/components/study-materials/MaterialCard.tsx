@@ -2,12 +2,18 @@
 import React from 'react';
 import { Calendar, Download, BookOpen } from 'lucide-react';
 import { StudyMaterial } from '@/utils/queryUtils';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface MaterialCardProps {
   material: StudyMaterial;
+  linkTo?: string;
 }
 
-const MaterialCard: React.FC<MaterialCardProps> = ({ material }) => {
+const MaterialCard: React.FC<MaterialCardProps> = ({ material, linkTo }) => {
+  // Determine the link destination - either use provided linkTo or construct default path
+  const contentLink = linkTo || `/content/${material.id}`;
+  
   return (
     <div className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 h-full">
       <div className="relative">
@@ -55,9 +61,14 @@ const MaterialCard: React.FC<MaterialCardProps> = ({ material }) => {
           </div>
         </div>
         
-        <div className="mt-4 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium py-2 rounded text-center transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-indigo-400">
-          View Material
-        </div>
+        <Link to={contentLink} className="block mt-4 w-full">
+          <Button 
+            variant="outline" 
+            className="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-indigo-400"
+          >
+            View Material
+          </Button>
+        </Link>
       </div>
     </div>
   );
