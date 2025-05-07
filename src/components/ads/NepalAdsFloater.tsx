@@ -8,6 +8,14 @@ export const NepalAdsFloater = () => {
   const [isVisible, setIsVisible] = useState(true);
   const { isUserPremium } = useAds();
   
+  // Check if the ad was previously closed in this session
+  useEffect(() => {
+    const wasClosed = sessionStorage.getItem('floaterAdClosed') === 'true';
+    if (wasClosed) {
+      setIsVisible(false);
+    }
+  }, []);
+  
   // Don't show the floating ad to premium users
   if (isUserPremium) {
     return null;
