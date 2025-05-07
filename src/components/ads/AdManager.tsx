@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Ad, Badge, BadgePercent, DollarSign, Megaphone, MegaphoneOff } from 'lucide-react';
+import { Badge, BadgePercent, DollarSign, Megaphone, MegaphoneOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface AdManagerProps {

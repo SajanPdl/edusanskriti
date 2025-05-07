@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpen, FileText, GraduationCap, Download, Search, Phone, Laptop, Clipboard, Book, Beaker, Home, Bookmark, User, Bell, MessageSquare, Microscope, Mountain, Trees, Flag } from 'lucide-react';
@@ -7,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { NepalAdsFloater } from './ads/NepalAdsFloater';
 
 const Hero = () => {
+  
+
   return (
     <section className="relative pt-24 pb-40 overflow-hidden">
       {/* Background gradient */}

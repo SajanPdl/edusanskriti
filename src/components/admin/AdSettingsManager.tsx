@@ -9,15 +9,16 @@ import {
   CardHeader, 
   CardTitle 
 } from '@/components/ui/card';
-import { Badge, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Ad, BadgeDollarSign, BadgePercent, DollarSign, Megaphone, MegaphoneOff } from 'lucide-react';
+import { BadgeDollarSign, BadgePercent, DollarSign, Megaphone, MegaphoneOff, Settings } from 'lucide-react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 
 const AdSettingsManager = () => {
   const { ads, toggleAd, addAd, removeAd, isUserPremium, setIsUserPremium } = useAds();
@@ -234,7 +235,7 @@ const AdSettingsManager = () => {
                 className="w-full"
                 onClick={handleAddAd}
               >
-                <Ad className="h-4 w-4 mr-2" />
+                <Settings className="h-4 w-4 mr-2" />
                 Add Advertisement
               </Button>
             </CardFooter>
