@@ -6,7 +6,6 @@ import Footer from '@/components/Footer';
 import StudyMaterialView from '@/components/StudyMaterialView';
 import { fetchStudyMaterialById, fetchPastPaperById } from '@/utils/queryUtils';
 import { StudyMaterial, PastPaper } from '@/utils/queryUtils';
-import { NepalAdsFloater } from '@/components/ads/NepalAdsFloater';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -17,13 +16,8 @@ const ContentViewPage = () => {
   const [contentType, setContentType] = useState<'study-material' | 'past-paper' | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isPremium, setIsPremium] = useState(false);
 
   useEffect(() => {
-    // Check if user has premium status from localStorage
-    const userSubscription = localStorage.getItem('userSubscription');
-    setIsPremium(userSubscription === 'premium');
-
     const loadContent = async () => {
       if (!id) {
         setError("Content ID not found");
@@ -135,9 +129,6 @@ const ContentViewPage = () => {
           material={content}
           type={contentType === 'past-paper' ? 'past_paper' : 'study_material'}
         />
-        
-        {/* Only show ads to non-premium users */}
-        {!isPremium && <NepalAdsFloater />}
       </main>
       <Footer />
     </div>

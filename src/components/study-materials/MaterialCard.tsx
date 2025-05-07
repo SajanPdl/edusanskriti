@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Calendar, Download, BookOpen } from 'lucide-react';
 import { StudyMaterial } from '@/utils/queryUtils';
 
@@ -10,7 +9,7 @@ interface MaterialCardProps {
 
 const MaterialCard: React.FC<MaterialCardProps> = ({ material }) => {
   return (
-    <div className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
+    <div className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 h-full">
       <div className="relative">
         {material.image_url ? (
           <img 
@@ -27,6 +26,12 @@ const MaterialCard: React.FC<MaterialCardProps> = ({ material }) => {
         <div className="absolute top-2 right-2 bg-indigo-600 text-white text-xs font-medium px-2 py-1 rounded">
           {material.category}
         </div>
+        
+        {material.subject && (
+          <div className="absolute top-2 left-2 bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 text-xs font-medium px-2 py-1 rounded border border-indigo-100 dark:border-indigo-800">
+            {material.subject}
+          </div>
+        )}
       </div>
       
       <div className="p-5">
@@ -50,11 +55,9 @@ const MaterialCard: React.FC<MaterialCardProps> = ({ material }) => {
           </div>
         </div>
         
-        <Link to={`/content/${material.id}`}>
-          <button className="mt-4 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium py-2 rounded transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-indigo-400">
-            View Material
-          </button>
-        </Link>
+        <div className="mt-4 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-medium py-2 rounded text-center transition-colors dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-indigo-400">
+          View Material
+        </div>
       </div>
     </div>
   );
